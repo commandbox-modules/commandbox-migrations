@@ -1,0 +1,41 @@
+{
+    "name":"CFMigrations Commands",
+    "version":"0.0.0",
+    "location":"elpete/commandbox-migrations#v0.0.0",
+    "author":"Eric Peterson",
+    "homepage":"https://github.com/elpete/commandbox-migrations",
+    "documentation":"https://github.com/elpete/commandbox-migrations",
+    "repository":{
+        "type":"git",
+        "URL":"https://github.com/elpete/commandbox-migrations"
+    },
+    "bugs":"https://github.com/elpete/commandbox-migrations/issues",
+    "slug":"commandbox-migrations",
+    "shortDescription":"Run your cfmigrations from CommandBox",
+    "instructions":"https://github.com/elpete/commandbox-migrations",
+    "type":"commandbox-modules",
+    "keywords":[
+        "server",
+        "database",
+        "migrations",
+        "cfmigrations"
+    ],
+    "scripts":{
+        "postVersion":"package set location='elpete/commandbox-migrations#v`package version`'",
+        "onRelease":"publish",
+        "postPublish":"!git push && !git push --tags"
+    },
+    "private":false,
+    "license":[
+        {
+            "type":"MIT",
+            "URL":"https://github.com/elpete/commandbox-migrations/blob/master/LICENSE"
+        }
+    ],
+    "dependencies":{
+        "cfmigrations": "^1.0.0"
+    },
+    "installPaths":{
+        "cfmigrations": "modules/cfmigrations"
+    }
+}
