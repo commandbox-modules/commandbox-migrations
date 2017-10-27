@@ -28,7 +28,7 @@ component {
         var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_hhnnss" );
         var migrationPath = "#arguments.directory#/#timestamp#_#arguments.name#.cfc";
 
-        var migrationContent = fileRead( "/cfmigrations-commands/templates/Migration.txt" );
+        var migrationContent = fileRead( "/commandbox-migrations/templates/Migration.txt" );
 
         file action="write" file="#migrationPath#" mode="777" output="#trim( migrationContent )#";
 

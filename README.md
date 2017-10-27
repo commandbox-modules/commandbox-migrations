@@ -1,6 +1,6 @@
-# CFMigrations Commands
+# `commandbox-migrations`
 
-## Run your cfmigrations from CommandBox
+## Run your [`cfmigrations`](https://github.com/elpete/cfmigrations) from CommandBox
 
 You need to set up some information in your `box.json`:
 
@@ -24,7 +24,7 @@ The `connectionInfo` object is the information to create an on the fly connectio
 
 You may notice that the values are surrounded in an escape sequence (`${}`).  This is how CommandBox injects environment variables into your `box.json` file.  Why environment variables?  Because you don't want to commit your database credentials in to source control.  Also, you want to be able to have different values in different environments.  Whether you have dedicated servers or are running your application in containers, you can find the supported way to add environment variables to your platform.
 
-For local development using CommandBox, I recommend using the package [`commandbox-dotenv`](https://forgebox.io/view/commandbox-dotenv).  This package lets you define environment variables in a `.env` file in the root of your project.  CommandBox will add these to your server when starting it up and also to the CommandBox instance if you load or reload the shell in a directory with a `.env` file.  That is how we will get our environment variables available for `cfmigrations-commands`.
+For local development using CommandBox, I recommend using the package [`commandbox-dotenv`](https://forgebox.io/view/commandbox-dotenv).  This package lets you define environment variables in a `.env` file in the root of your project.  CommandBox will add these to your server when starting it up and also to the CommandBox instance if you load or reload the shell in a directory with a `.env` file.  That is how we will get our environment variables available for `commandbox-migrations`.
 
 With `commandbox-dotenv` installed, create a `.env` file in the root of you project.  At the very least, it will look like this:
 

@@ -1,4 +1,4 @@
-component extends="cfmigrations-commands.models.BaseMigrationCommand" {
+component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     function run( boolean once = false, string migrationsDirectory = "resources/database/migrations" ) {
         migrationService.setMigrationsDirectory( "#getCWD()#/#arguments.migrationsDirectory#" );
