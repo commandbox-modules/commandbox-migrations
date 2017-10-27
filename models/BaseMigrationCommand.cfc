@@ -12,6 +12,7 @@ component {
         application action='update' datasources=dsources;
         application action='update' datasource='cfmigrations';
         migrationService.setDefaultGrammar( cfmigrationsInfo.defaultGrammar );
+        migrationService.setDatasource( "cfmigrations" );
     }
 
     private function checkForInstalledMigrationTable() {
