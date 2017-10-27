@@ -1,7 +1,7 @@
 {
     "name":"CFMigrations Commands",
-    "version":"0.0.0",
-    "location":"elpete/commandbox-migrations#v0.0.0",
+    "version":"1.0.0",
+    "location":"elpete/commandbox-migrations#v1.0.0",
     "author":"Eric Peterson",
     "homepage":"https://github.com/elpete/commandbox-migrations",
     "documentation":"https://github.com/elpete/commandbox-migrations",
@@ -33,9 +33,9 @@
         }
     ],
     "dependencies":{
-        "cfmigrations": "^1.0.0"
+        "cfmigrations":"^1.0.0"
     },
     "installPaths":{
-        "cfmigrations": "modules/cfmigrations"
+        "cfmigrations":"modules/cfmigrations"
     }
 }
