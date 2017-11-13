@@ -5,10 +5,13 @@ component {
     property name="JSONService" inject="JSONService";
 
     function onDIComplete() {
+        // This is neccessary so changes get picked up right away
+        pagePoolClear();
+
         var cfmigrationsInfo = getCFMigrationsInfo();
         var appSettings = getApplicationSettings();
         var dsources = appSettings.datasources ?: {};
-        dsources[ 'cfmigrations' ] = cfmigrationsInfo.connectionInfo;
+        dsources[ "cfmigrations" ] = cfmigrationsInfo.connectionInfo;
         application action='update' datasources=dsources;
         application action='update' datasource='cfmigrations';
         migrationService.setDefaultGrammar( cfmigrationsInfo.defaultGrammar );
