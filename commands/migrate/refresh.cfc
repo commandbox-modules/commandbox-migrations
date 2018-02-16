@@ -11,7 +11,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         string migrationsDirectory = "resources/database/migrations",
         boolean verbose = false
     ) {
-        migrationService.setMigrationsDirectory( "#getCWD()#/#arguments.migrationsDirectory#" );
+        pagePoolClear();
+        var relativePath = fileSystemUtil.makePathRelative(
+            fileSystemUtil.resolvePath( migrationsDirectory )
+        );
+        migrationService.setMigrationsDirectory( relativePath );
 
         command( "migrate down" )
             .params( argumentCollection = { verbose = arguments.verbose } )

@@ -7,16 +7,33 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-    * @verbose If true, errors will output a full stack trace.
+    * @migrationsDirectory Specify the relative location of the migration files
+    * @verbose             If true, errors output a full stack trace
+    * @force               If true, will not wait for confirmation to uninstall cfmigrations.
     */
-    function run( boolean verbose = false ) {
+    function run(
+        string migrationsDirectory = "resources/database/migrations",
+        boolean verbose = false,
+        boolean force = false
+    ) {
+        pagePoolClear();
+        var relativePath = fileSystemUtil.makePathRelative(
+            fileSystemUtil.resolvePath( migrationsDirectory )
+        );
+        migrationService.setMigrationsDirectory( relativePath );
+
         try {
             if ( ! migrationService.isMigrationTableInstalled() ) {
                 return error( "No Migration table detected." );
             }
 
-            migrationService.uninstall();
-            print.line( "Migration table uninstalled!" ).line();
+            if ( force || confirm( "Uninstalling cfmigrations will also run all your migrations down. Are you sure you want to continue? [y/n]" ) ) {
+                migrationService.uninstall();
+                print.line( "Migration table uninstalled!" ).line();
+            }
+            else {
+                print.line( "Aborting uninstall process." );
+            }
         }
         catch ( any e ) {
             if ( verbose ) {

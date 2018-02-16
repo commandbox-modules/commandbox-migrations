@@ -1,13 +1,11 @@
 component {
 
     property name="migrationService" inject="MigrationService@cfmigrations";
+    property name="fileSystemUtil" inject="FileSystem";
     property name="packageService" inject="PackageService";
     property name="JSONService" inject="JSONService";
 
     function onDIComplete() {
-        // This is neccessary so changes get picked up right away
-        pagePoolClear();
-
         var cfmigrationsInfo = getCFMigrationsInfo();
         var appSettings = getApplicationSettings();
         var dsources = appSettings.datasources ?: {};
