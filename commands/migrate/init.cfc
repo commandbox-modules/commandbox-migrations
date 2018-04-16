@@ -25,7 +25,7 @@ component {
         }
 
 		JSONService.set( boxJSON, {
-            "cfmigrations.defaultGrammar": "BaseGrammar",
+            "cfmigrations.defaultGrammar": "AutoDiscover",
             "cfmigrations.connectionInfo.class": "${DB_CLASS}",
             "cfmigrations.connectionInfo.connectionString": "${DB_CONNECTIONSTRING}",
             "cfmigrations.connectionInfo.username": "${DB_USER}",
