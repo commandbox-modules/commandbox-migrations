@@ -34,7 +34,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     var migration = e.tagContext[ 4 ];
                     var templateName = listLast( migration.template, "/" );
                     var newline = "#chr(10)##chr(13)#";
-                    return error( e.detail, "#templateName##newline##e.queryError#" );
+                    return error(
+                        len( e.detail ) ? e.detail : e.message,
+                        "#templateName##newline##e.queryError#"
+                    );
                 default:
                     rethrow;
             }

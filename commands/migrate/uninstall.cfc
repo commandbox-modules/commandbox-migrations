@@ -40,17 +40,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 rethrow;
             }
 
-            switch ( e.type ) {
-                case "expression":
-                    return error( e.message, e.detail );
-                case "database":
-                    var migration = e.tagContext[ 4 ];
-                    var templateName = listLast( migration.template, "/" );
-                    var newline = "#chr(10)##chr(13)#";
-                    return error( e.detail, "#templateName##newline##e.queryError#" );
-                default:
-                    rethrow;
-            }
+            return error( e.message, e.detail );
         }
     }
 
