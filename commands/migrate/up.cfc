@@ -27,12 +27,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             }
             else if ( once ) {
                 migrationService.runNextMigration( "up", function( migration ) {
-                    print.whiteLine( "#migration.componentName# migrated successfully!" );
+                    print.line( "#migration.componentName# migrated successfully!" );
                 } );
             }
             else {
                 migrationService.runAllMigrations( "up", function( migration ) {
-                    print.whiteLine( "#migration.componentName# migrated successfully!" );
+                    print.line( "#migration.componentName# migrated successfully!" );
                 } );
             }
         }
