@@ -25,7 +25,7 @@ component {
             directoryCreate( arguments.directory );
         }
 
-        var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_hhnnss" );
+        var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" );
         var migrationPath = "#arguments.directory#/#timestamp#_#arguments.name#.cfc";
 
         var migrationContent = fileRead( "/commandbox-migrations/templates/Migration.txt" );
