@@ -17,7 +17,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         try {
             if ( migrationService.isMigrationTableInstalled() ) {
-                return error( "Migration table already installed." );
+                print.line( "Migration table already installed." );
+                return;
             }
 
             migrationService.install();
