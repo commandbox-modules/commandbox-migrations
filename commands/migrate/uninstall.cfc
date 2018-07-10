@@ -24,7 +24,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         try {
             if ( ! migrationService.isMigrationTableInstalled() ) {
-                return error( "No Migration table detected." );
+                print.line( "No Migration table detected" );
+                return;
             }
 
             if ( force || confirm( "Uninstalling cfmigrations will also run all your migrations down. Are you sure you want to continue? [y/n]" ) ) {
