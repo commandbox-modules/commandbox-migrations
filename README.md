@@ -7,6 +7,7 @@ You need to set up some information in your `box.json`:
 ```json
 "cfmigrations": {
     "defaultGrammar": "BaseGrammar",
+    "schema": "${DB_DATABASE}",
     "connectionInfo": {
         "class": "${DB_CLASS}",
         "connectionString": "${DB_CONNECTIONSTRING}",
@@ -16,9 +17,16 @@ You need to set up some information in your `box.json`:
 }
 ```
 
-There are two main sections. The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema. Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
+The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
+Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
 
-> You don't have to use qb's `SchemaBuilder` to use `cfmigrations`. Just run your own migrations using `queryExecute` and you can have complete control over your sql.
+> You don't have to use qb's `SchemaBuilder` to use `cfmigrations`.
+> Just run your own migrations using `queryExecute` and you can have complete control over your sql.
+
+The `schema` represents the schema to install the migrations in.  This is a very important field,
+especially for database setups hosting mutiple schemas. Without it, `commandbox-migrations` will
+be unable to correct detect the migrations table.  It may tell you that the migration table is
+already installed when it isn't because it detects it in a different schema.
 
 The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
 
