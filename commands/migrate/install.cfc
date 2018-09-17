@@ -10,9 +10,15 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
     * @verbose If true, errors will output a full stack trace.
     */
     function run( boolean verbose = false ) {
+        if ( verbose ) {
+            systemOutput( "cfmigrations info:", true );
+            systemOutput( variables.cfmigrationsInfo, true );
+        }
+
         try {
             if ( migrationService.isMigrationTableInstalled() ) {
-                return error( "Migration table already installed." );
+                print.line( "Migration table already installed." );
+                return;
             }
 
             migrationService.install();

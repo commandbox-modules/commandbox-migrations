@@ -22,6 +22,35 @@ There are two main sections. The `defaultGrammar` sets the correct Database Gram
 
 The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
 
+`commandbox-migrations` will create a datasource named `cfmigrations` from the information you specify.
+You can use this in your queries:
+
+```js
+queryExecute(
+    "
+        CREATE TABLE `users` (
+            `id` INT UNSIGNED AUTO_INCREMENT,
+            `email` VARCHAR(255) NOT NULL,
+            `password` VARCHAR(255) NOT NULL
+        )
+    ",
+    [],
+    { datasource = "cfmigrations" }
+)
+```
+
+`commandbox-migrations` will also set `cfmigrations` as the default datasource, so the following will work as well:
+
+```js
+queryExecute( "
+    CREATE TABLE `users` (
+        `id` INT UNSIGNED AUTO_INCREMENT,
+         `email` VARCHAR(255) NOT NULL,
+         `password` VARCHAR(255) NOT NULL
+    )
+" );
+```
+
 You may notice that the values are surrounded in an escape sequence (`${}`). This is how CommandBox injects environment variables into your `box.json` file. Why environment variables? Because you don't want to commit your database credentials in to source control. Also, you want to be able to have different values in different environments. Whether you have dedicated servers or are running your application in containers, you can find the supported way to add environment variables to your platform.
 
 For local development using CommandBox, I recommend using the package [`commandbox-dotenv`](https://forgebox.io/view/commandbox-dotenv). This package lets you define environment variables in a `.env` file in the root of your project. CommandBox will add these to your server when starting it up and also to the CommandBox instance if you load or reload the shell in a directory with a `.env` file. That is how we will get our environment variables available for `commandbox-migrations`.

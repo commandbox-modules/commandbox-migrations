@@ -6,7 +6,7 @@ component {
     property name="JSONService" inject="JSONService";
 
     function onDIComplete() {
-        var cfmigrationsInfo = getCFMigrationsInfo();
+        variables.cfmigrationsInfo = getCFMigrationsInfo();
         var appSettings = getApplicationSettings();
         var dsources = appSettings.datasources ?: {};
         dsources[ "cfmigrations" ] = cfmigrationsInfo.connectionInfo;
