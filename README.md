@@ -7,6 +7,7 @@ You need to set up some information in your `box.json`:
 ```json
 "cfmigrations": {
     "defaultGrammar": "BaseGrammar",
+    "schema": "${DB_DATABASE}",
     "connectionInfo": {
         "class": "${DB_CLASS}",
         "connectionString": "${DB_CONNECTIONSTRING}",
@@ -16,11 +17,17 @@ You need to set up some information in your `box.json`:
 }
 ```
 
-There are two main sections. The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema. Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
+The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
+Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
 
 > You don't have to use qb's `SchemaBuilder` to use `cfmigrations`. Just run your own migrations using `queryExecute` and you can have complete control over your sql.
 
-The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
+The `schema` is the schema that you are running your migrations against.
+This is especially important if you host more than one schema on a database
+because otherwise we can't tell if the migration table is installed correctly.
+
+The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations.
+This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
 
 You may notice that the values are surrounded in an escape sequence (`${}`). This is how CommandBox injects environment variables into your `box.json` file. Why environment variables? Because you don't want to commit your database credentials in to source control. Also, you want to be able to have different values in different environments. Whether you have dedicated servers or are running your application in containers, you can find the supported way to add environment variables to your platform.
 
