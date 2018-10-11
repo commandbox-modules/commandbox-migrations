@@ -66,6 +66,7 @@ For local development using CommandBox, I recommend using the package [`commandb
 With `commandbox-dotenv` installed, create a `.env` file in the root of you project. At the very least, it will look like this:
 
 ```
+DB_DATABASE=test_db
 DB_CLASS=org.gjt.mm.mysql.Driver
 DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/test_db?useUnicode=true&characterEncoding=UTF-8&useLegacyDatetimeCode=true
 DB_USER=test
@@ -81,6 +82,7 @@ I recommend adding this file to your `.gitignore`
 An added step to help new users get up to speed with the needed environment variables for your project is to add an `.env.example` file to the root of your project as well. This file would have all the keys needed, but no values filled out. Like so:
 
 ```
+DB_DATABASE=
 DB_CLASS=
 DB_CONNECTIONSTRING=
 DB_USER=
