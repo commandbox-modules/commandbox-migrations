@@ -7,7 +7,7 @@ You need to set up some information in your `box.json`:
 ```json
 "cfmigrations": {
     "defaultGrammar": "BaseGrammar",
-    "schema": "${DB_DATABASE}",
+    "schema": "${DB_SCHEMA}",
     "connectionInfo": {
         "class": "${DB_CLASS}",
         "connectionString": "${DB_CONNECTIONSTRING}",
@@ -20,14 +20,44 @@ You need to set up some information in your `box.json`:
 The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
 Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
 
-> You don't have to use qb's `SchemaBuilder` to use `cfmigrations`. Just run your own migrations using `queryExecute` and you can have complete control over your sql.
+> You don't have to use qb's `SchemaBuilder` to use `cfmigrations`.
+> Just run your own migrations using `queryExecute` and you can have complete control over your sql.
 
-The `schema` is the schema that you are running your migrations against.
-This is especially important if you host more than one schema on a database
-because otherwise we can't tell if the migration table is installed correctly.
+The `schema` represents the schema to install the migrations in.  This is a very important field,
+especially for database setups hosting mutiple schemas. Without it, `commandbox-migrations` will
+be unable to correct detect the migrations table.  It may tell you that the migration table is
+already installed when it isn't because it detects it in a different schema.
 
-The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations.
-This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
+The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
+
+`commandbox-migrations` will create a datasource named `cfmigrations` from the information you specify.
+You can use this in your queries:
+
+```js
+queryExecute(
+    "
+        CREATE TABLE `users` (
+            `id` INT UNSIGNED AUTO_INCREMENT,
+            `email` VARCHAR(255) NOT NULL,
+            `password` VARCHAR(255) NOT NULL
+        )
+    ",
+    [],
+    { datasource = "cfmigrations" }
+)
+```
+
+`commandbox-migrations` will also set `cfmigrations` as the default datasource, so the following will work as well:
+
+```js
+queryExecute( "
+    CREATE TABLE `users` (
+        `id` INT UNSIGNED AUTO_INCREMENT,
+         `email` VARCHAR(255) NOT NULL,
+         `password` VARCHAR(255) NOT NULL
+    )
+" );
+```
 
 You may notice that the values are surrounded in an escape sequence (`${}`). This is how CommandBox injects environment variables into your `box.json` file. Why environment variables? Because you don't want to commit your database credentials in to source control. Also, you want to be able to have different values in different environments. Whether you have dedicated servers or are running your application in containers, you can find the supported way to add environment variables to your platform.
 
@@ -36,11 +66,25 @@ For local development using CommandBox, I recommend using the package [`commandb
 With `commandbox-dotenv` installed, create a `.env` file in the root of you project. At the very least, it will look like this:
 
 ```
+# MYSQL VERSION
+DB_SCHEMA=test_db
+DB_DATABASE=test_db
 DB_CLASS=org.gjt.mm.mysql.Driver
 DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/test_db?useUnicode=true&characterEncoding=UTF-8&useLegacyDatetimeCode=true
 DB_USER=test
 DB_PASSWORD=pass1234
 ```
+
+```
+# MSSQL VERSION
+DB_SCHEMA=dbo
+DB_DATABASE=test_db
+DB_CLASS=com.microsoft.sqlserver.jdbc.SQLServerDriver
+DB_CONNECTIONSTRING=jdbc:sqlserver://localhost:1433;DATABASENAME=test_db;sendStringParametersAsUnicode=true;SelectMethod=direct
+DB_USER=test
+DB_PASSWORD=pass1234
+```
+
 
 I recommend adding this file to your `.gitignore`
 
@@ -51,6 +95,8 @@ I recommend adding this file to your `.gitignore`
 An added step to help new users get up to speed with the needed environment variables for your project is to add an `.env.example` file to the root of your project as well. This file would have all the keys needed, but no values filled out. Like so:
 
 ```
+DB_SCHEMA=
+DB_DATABASE=
 DB_CLASS=
 DB_CONNECTIONSTRING=
 DB_USER=

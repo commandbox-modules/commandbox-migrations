@@ -14,6 +14,8 @@ component {
         application action='update' datasource='cfmigrations';
         migrationService.setDefaultGrammar( cfmigrationsInfo.defaultGrammar );
         migrationService.setDatasource( "cfmigrations" );
+        param cfmigrationsInfo.schema = "";
+        migrationService.setSchema( cfmigrationsInfo.schema );
     }
 
     private function checkForInstalledMigrationTable() {

@@ -1,7 +1,7 @@
 {
     "name":"CFMigrations Commands",
-    "version":"1.4.3",
-    "location":"coldbox-modules/commandbox-migrations#v1.4.3",
+    "version":"1.5.1",
+    "location":"coldbox-modules/commandbox-migrations#v1.5.1",
     "author":"Eric Peterson",
     "homepage":"https://github.com/coldbox-modules/commandbox-migrations",
     "documentation":"https://github.com/coldbox-modules/commandbox-migrations",
