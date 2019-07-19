@@ -40,7 +40,7 @@ component {
         var boxJSON = packageService.readPackageDescriptor( directory );
 
         if ( ! JSONService.check( boxJSON, "cfmigrations" ) ) {
-            return error( "There is no `cfmigrations` key in your box.json. Please create one with the necessary values. See https://github.com/elpete/commandbox-migrations" );
+            return error( "There is no `cfmigrations` key in your box.json. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations" );
         }
 
         return JSONService.show( boxJSON, "cfmigrations" );
