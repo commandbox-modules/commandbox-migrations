@@ -25,7 +25,7 @@ component {
         }
 
 		JSONService.set( boxJSON, {
-            "cfmigrations.defaultGrammar": "AutoDiscover",
+            "cfmigrations.defaultGrammar": "AutoDiscover@qb",
             "cfmigrations.schema": "${DB_SCHEMA}",
             "cfmigrations.connectionInfo.class": "${DB_CLASS}",
             "cfmigrations.connectionInfo.connectionString": "${DB_CONNECTIONSTRING}",
@@ -34,7 +34,7 @@ component {
         }, false );
 
 		// Write the file back out.
-        PackageService.writePackageDescriptor( boxJSON, directory );
+        packageService.writePackageDescriptor( boxJSON, directory );
         print.greenLine( "cfmigrations configured!" );
     }
 

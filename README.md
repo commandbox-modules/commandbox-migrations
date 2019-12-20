@@ -6,7 +6,7 @@ You need to set up some information in your `box.json`:
 
 ```json
 "cfmigrations": {
-    "defaultGrammar": "BaseGrammar",
+    "defaultGrammar": "AutoDiscover@qb",
     "schema": "${DB_SCHEMA}",
     "connectionInfo": {
         "class": "${DB_CLASS}",
