@@ -23,7 +23,7 @@
     "scripts":{
         "postVersion":"package set location='coldbox-modules/commandbox-migrations#v`package version`'",
         "onRelease":"publish",
-        "postPublish":"!git push && !git push --tags"
+        "postPublish":"!git push && git push --tags"
     },
     "private":false,
     "license":[
