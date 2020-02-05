@@ -16,6 +16,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         boolean verbose = false,
         boolean force = false
     ) {
+        setup();
         pagePoolClear();
         var relativePath = fileSystemUtil.makePathRelative(
             fileSystemUtil.resolvePath( migrationsDirectory )

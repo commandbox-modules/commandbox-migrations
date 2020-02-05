@@ -13,6 +13,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         string migrationsDirectory = "resources/database/migrations",
         boolean verbose = false
     ) {
+        setup();
+
         if ( verbose ) {
             systemOutput( "cfmigrations info:", true );
             systemOutput( variables.cfmigrationsInfo, true );

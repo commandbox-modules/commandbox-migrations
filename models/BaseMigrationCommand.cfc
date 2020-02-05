@@ -5,7 +5,7 @@ component {
     property name="packageService" inject="PackageService";
     property name="JSONService" inject="JSONService";
 
-    function onDIComplete() {
+    function setup() {
         variables.cfmigrationsInfo = getCFMigrationsInfo();
         var appSettings = getApplicationSettings();
         var dsources = appSettings.datasources ?: {};
