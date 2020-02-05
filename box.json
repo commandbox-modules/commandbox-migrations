@@ -33,7 +33,7 @@
         }
     ],
     "dependencies":{
-        "cfmigrations":"^1.2.0"
+        "cfmigrations":"^2.0.0"
     },
     "installPaths":{
         "cfmigrations":"modules/cfmigrations"
