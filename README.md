@@ -30,6 +30,9 @@ already installed when it isn't because it detects it in a different schema.
 
 The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
 
+> When using MySQL with CommandBox 5 or greater, two additional elements are required in the `connectionInfo` struct:
+> `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`
+
 `commandbox-migrations` will create a datasource named `cfmigrations` from the information you specify.
 You can use this in your queries:
 
