@@ -2,7 +2,7 @@
 
 ## Run your [`cfmigrations`](https://github.com/elpete/cfmigrations) from CommandBox
 
-You need to set up some information in your `box.json`:
+You need to set up some information in your `box.json`: 😎
 
 ```json
 "cfmigrations": {
