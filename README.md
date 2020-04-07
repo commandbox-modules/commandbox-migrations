@@ -2,6 +2,12 @@
 
 ## Run your [`cfmigrations`](https://github.com/elpete/cfmigrations) from CommandBox
 
+## Upgrading from v2.0.0?
+
+Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDiscover`.
+
+## Setup
+
 You need to set up some information in your `box.json`:
 
 ```json
