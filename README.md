@@ -20,7 +20,7 @@ You need to set up some information in your `box.json`:
 ```
 
 The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
-Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/). If AutoDiscover gives you problems, use one of the distinct versions (MySQLGrammar, SQLServerGrammar).
+Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
 
 > You don't have to use qb's `SchemaBuilder` to use `cfmigrations`.
 > Just run your own migrations using `queryExecute` and you can have complete control over your sql.
