@@ -18,7 +18,9 @@ You need to set up some information in your `box.json`:
         "class": "${DB_CLASS}",
         "connectionString": "${DB_CONNECTIONSTRING}",
         "username": "${DB_USER}",
-        "password": "${DB_PASSWORD}"
+        "password": "${DB_PASSWORD}", 
+        "bundleName": "${DB_BUNDLENAME}", 
+        "bundleVersion": "${DB_BUNDLEVERSION}"
     }
 }
 ```
@@ -92,6 +94,8 @@ DB_CLASS=com.microsoft.sqlserver.jdbc.SQLServerDriver
 DB_CONNECTIONSTRING=jdbc:sqlserver://localhost:1433;DATABASENAME=test_db;sendStringParametersAsUnicode=true;SelectMethod=direct
 DB_USER=test
 DB_PASSWORD=pass1234
+DB_BUNDLENAME=mssqljdbc4
+DB_BUNDLEVERSION=4.0.2206.100
 ```
 
 
