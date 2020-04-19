@@ -42,7 +42,14 @@ component {
         if ( ! JSONService.check( boxJSON, "cfmigrations" ) ) {
             return error( "There is no `cfmigrations` key in your box.json. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations" );
         }
-
+        if (left(shell.getVersion(), 1) GTE 5) {
+            if (!JSONService.check(boxJSON.cfmigrations.connectionInfo, "bundleName")) {
+                return error("There is no `bundleName` key in your box.json. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations");
+            }
+            if (!JSONService.check(boxJSON.cfmigrations.connectionInfo, "bundleVersion")) {
+                return error("There is no `bundleVersion` key in your box.json. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations");
+            }
+        }
         return JSONService.show( boxJSON, "cfmigrations" );
     }
 
