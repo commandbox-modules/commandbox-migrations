@@ -21,7 +21,8 @@ You need to set up some information in your `box.json`:
         "password": "${DB_PASSWORD}", 
         "bundleName": "${DB_BUNDLENAME}", 
         "bundleVersion": "${DB_BUNDLEVERSION}"
-    }
+    },
+   "migrationsDirectory": "resources/database/migrations"
 }
 ```
 
@@ -37,6 +38,8 @@ be unable to correct detect the migrations table.  It may tell you that the migr
 already installed when it isn't because it detects it in a different schema.
 
 The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
+
+The `migrationsDirectory` sets the default location for the migration scripts.  This setting is optional.
 
 > When using MySQL with CommandBox 5 or greater, two additional elements are required in the `connectionInfo` struct:
 > `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`

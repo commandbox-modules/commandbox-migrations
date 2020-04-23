@@ -7,21 +7,19 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-    * @migrationsDirectory Specify the relative location of the migration files
+    * @migrationsDirectory Override the default relative location of the migration files
     * @verbose             If true, errors output a full stack trace
     * @force               If true, will not wait for confirmation to uninstall cfmigrations.
     */
     function run(
-        string migrationsDirectory = "resources/database/migrations",
+        string migrationsDirectory = "",
         boolean verbose = false,
         boolean force = false
     ) {
         setup();
         pagePoolClear();
-        var relativePath = fileSystemUtil.makePathRelative(
-            fileSystemUtil.resolvePath( migrationsDirectory )
-        );
-        migrationService.setMigrationsDirectory( relativePath );
+        if ( len(arguments.migrationsDirectory) )
+            setMigrationPath( migrationsDirectory );
 
         try {
             if ( ! migrationService.isMigrationTableInstalled() ) {

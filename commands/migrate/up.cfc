@@ -5,12 +5,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
     * @once                Only apply a single migration.
-    * @migrationsDirectory Specify the relative location of the migration files
+    * @migrationsDirectory Override the default relative location of the migration files
     * @verbose             If true, errors output a full stack trace
     */
     function run(
         boolean once = false,
-        string migrationsDirectory = "resources/database/migrations",
+        string migrationsDirectory = "",
         boolean verbose = false
     ) {
         setup();
@@ -21,10 +21,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         pagePoolClear();
-        var relativePath = fileSystemUtil.makePathRelative(
-            fileSystemUtil.resolvePath( migrationsDirectory )
-        );
-        migrationService.setMigrationsDirectory( relativePath );
+        if ( len(arguments.migrationsDirectory) )
+            setMigrationPath( migrationsDirectory );
 
         try {
             checkForInstalledMigrationTable();
