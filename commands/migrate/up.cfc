@@ -22,7 +22,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         pagePoolClear();
         if ( len(arguments.migrationsDirectory) )
-            setMigrationPath( migrationsDirectory );
+            setMigrationPath( arguments.migrationsDirectory );
 
         try {
             checkForInstalledMigrationTable();
