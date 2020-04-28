@@ -14,7 +14,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setup();
         pagePoolClear();
         if ( len(arguments.migrationsDirectory) )
-            setMigrationPath( migrationsDirectory );
+            setMigrationPath( arguments.migrationsDirectory );
 
         try {
             migrationService.reset();
