@@ -5,28 +5,32 @@
 * It prepends the date at the beginning of the file name so
 * you can keep your migrations in the correct order.
 */
-component {
+component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
     * @name Name of the migration to create without the .cfc.
-    * @directory The base directory to create your migration in. Creates the directory if it does not exist.
+    * @migrationsDirectory The base migrationsDirectory to create your migration in. Creates the migrationsDirectory if it does not exist.
     * @open Open the file once generated
     */
     function run(
         required string name,
-        string directory = "resources/database/migrations",
+        string migrationsDirectory = "",
         boolean open = false
     ) {
-        // This will make each directory canonical and absolute
-        arguments.directory = fileSystemUtil.resolvePath( arguments.directory );
+        setup();
 
-        // Validate directory
-        if( !directoryExists( arguments.directory ) ) {
-            directoryCreate( arguments.directory );
+        if ( len(arguments.migrationsDirectory) )
+            setMigrationPath( arguments.migrationsDirectory );
+        
+        arguments.migrationsDirectory =  getMigrationPath();
+
+        // Validate migrationsDirectory
+        if( !directoryExists( arguments.migrationsDirectory ) ) {
+            directoryCreate( arguments.migrationsDirectory );
         }
 
         var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" );
-        var migrationPath = "#arguments.directory#/#timestamp#_#arguments.name#.cfc";
+        var migrationPath = "#arguments.migrationsDirectory#/#timestamp#_#arguments.name#.cfc";
 
         var migrationContent = fileRead( "/commandbox-migrations/templates/Migration.txt" );
 
