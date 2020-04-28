@@ -30,7 +30,8 @@ component {
             "cfmigrations.connectionInfo.class": "${DB_CLASS}",
             "cfmigrations.connectionInfo.connectionString": "${DB_CONNECTIONSTRING}",
             "cfmigrations.connectionInfo.username": "${DB_USER}",
-            "cfmigrations.connectionInfo.password": "${DB_PASSWORD}"
+            "cfmigrations.connectionInfo.password": "${DB_PASSWORD}",
+            "cfmigrations.migrationsDirectory": "resources/database/migrations"
         }, false );
 
 		// Write the file back out.

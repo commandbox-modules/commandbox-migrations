@@ -16,6 +16,15 @@ component {
         migrationService.setDatasource( "cfmigrations" );
         param cfmigrationsInfo.schema = "";
         migrationService.setSchema( cfmigrationsInfo.schema );
+        param cfmigrationsInfo.migrationsDirectory = "resources/database/migrations";
+        setMigrationPath( cfmigrationsInfo.migrationsDirectory );
+    }
+
+    function setMigrationPath ( required migrationsDirectory ){
+        var relativePath = fileSystemUtil.makePathRelative(
+            fileSystemUtil.resolvePath( migrationsDirectory )
+        );
+        migrationService.setMigrationsDirectory( relativePath );
     }
 
     private function checkForInstalledMigrationTable() {
