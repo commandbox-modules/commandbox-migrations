@@ -27,6 +27,10 @@ component {
         migrationService.setMigrationsDirectory( relativePath );
     }
 
+    string function getMigrationPath ( ){
+        return migrationService.getMigrationsDirectory();
+    }
+
     private function checkForInstalledMigrationTable() {
         if ( ! migrationService.isMigrationTableInstalled() ) {
             if ( confirm( "Migration table not installed.  Do you want to install it now? [y\n]" ) ) {
