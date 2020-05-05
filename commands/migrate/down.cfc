@@ -14,6 +14,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         boolean verbose = false
     ) {
         setup();
+        setupDatasource();
+
         pagePoolClear();
         if ( len(arguments.migrationsDirectory) )
             setMigrationPath( arguments.migrationsDirectory );

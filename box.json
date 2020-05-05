@@ -35,6 +35,6 @@
         "cfmigrations":"^2.0.0"
     },
     "installPaths":{
-        "cfmigrations":"modules/cfmigrations"
+        "cfmigrations":"modules/cfmigrations/"
     }
 }

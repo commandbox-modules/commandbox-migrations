@@ -14,6 +14,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         boolean verbose = false
     ) {
         setup();
+        setupDatasource();
 
         if ( verbose ) {
             systemOutput( "cfmigrations info:", true );

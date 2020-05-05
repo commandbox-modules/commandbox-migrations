@@ -21,8 +21,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         if ( len(arguments.migrationsDirectory) )
             setMigrationPath( arguments.migrationsDirectory );
-        
-        arguments.migrationsDirectory =  getMigrationPath();
+
+        arguments.migrationsDirectory = getMigrationPath();
 
         // Validate migrationsDirectory
         if( !directoryExists( arguments.migrationsDirectory ) ) {

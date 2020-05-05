@@ -31,6 +31,8 @@ component {
             "cfmigrations.connectionInfo.connectionString": "${DB_CONNECTIONSTRING}",
             "cfmigrations.connectionInfo.username": "${DB_USER}",
             "cfmigrations.connectionInfo.password": "${DB_PASSWORD}",
+            "cfmigrations.connectionInfo.bundleName": "${DB_BUNDLENAME}",
+            "cfmigrations.connectionInfo.bundleVersion": "${DB_BUNDLEVERSION}",
             "cfmigrations.migrationsDirectory": "resources/database/migrations"
         }, false );
 
