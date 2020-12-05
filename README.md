@@ -8,7 +8,7 @@ Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDisc
 
 ## Setup
 
-You need to set up some information in your `box.json`:
+You need to set up some information in the `box.json` in your application root folder:
 
 ```json
 "cfmigrations": {
