@@ -1,10 +1,10 @@
 component {
     
-    function up( schema, query ) {
+    function up( schema, qb ) {
         
     }
 
-    function down( schema, query ) {
+    function down( schema, qb ) {
         
     }
 
