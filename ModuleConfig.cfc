@@ -10,7 +10,10 @@ component {
                 .toURL()
                 .toString()
         );
-        binder.map( "SqlHighlighter" ).asSingleton().toValue( sqlHighlighter );
+        binder
+            .map( "SqlHighlighter" )
+            .asSingleton()
+            .toValue( sqlHighlighter );
     }
 
 }

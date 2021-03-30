@@ -79,7 +79,7 @@ For local development using CommandBox, I recommend using the package [`commandb
 
 With `commandbox-dotenv` installed, create a `.env` file in the root of you project. At the very least, it will look like this:
 
-```
+```env
 # MYSQL VERSION
 DB_SCHEMA=test_db
 DB_DATABASE=test_db
@@ -89,7 +89,7 @@ DB_USER=test
 DB_PASSWORD=pass1234
 ```
 
-```
+```env
 # MSSQL VERSION
 DB_SCHEMA=dbo
 DB_DATABASE=test_db
@@ -110,7 +110,7 @@ I recommend adding this file to your `.gitignore`
 
 An added step to help new users get up to speed with the needed environment variables for your project is to add an `.env.example` file to the root of your project as well. This file would have all the keys needed, but no values filled out. Like so:
 
-```
+```env
 DB_SCHEMA=
 DB_DATABASE=
 DB_CLASS=
