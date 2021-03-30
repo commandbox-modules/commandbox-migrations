@@ -8,8 +8,9 @@ component {
                 .init( expandPath( "/commandbox-migrations/lib/sql.nanorc" ) )
                 .toURI()
                 .toURL()
+                .toString()
         );
-        binder.map( "SqlHighlighter" ).toValue( sqlHighlighter );
+        binder.map( "SqlHighlighter" ).asSingleton().toValue( sqlHighlighter );
     }
 
 }
