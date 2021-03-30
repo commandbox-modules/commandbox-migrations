@@ -1,16 +1,13 @@
 /**
-* Rollback all committed migrations and then apply all migrations in order.
-*/
+ * Rollback all committed migrations and then apply all migrations in order.
+ */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-    * @migrationsDirectory Override the default relative location of the migration files
-    * @verbose             If true, errors output a full stack trace
-    */
-    function run(
-        string migrationsDirectory = "",
-        boolean verbose = false
-    ) {
+     * @migrationsDirectory Override the default relative location of the migration files
+     * @verbose             If true, errors output a full stack trace
+     */
+    function run( string migrationsDirectory = "", boolean verbose = false ) {
         setup();
         setupDatasource();
 
@@ -24,13 +21,9 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             setMigrationPath( arguments.migrationsDirectory );
         }
 
-        command( "migrate down" )
-            .params( argumentCollection = { verbose = arguments.verbose } )
-            .run();
+        command( "migrate down" ).params( argumentCollection = { verbose: arguments.verbose } ).run();
 
-        command( "migrate up" )
-            .params( argumentCollection = { verbose = arguments.verbose } )
-            .run();
+        command( "migrate up" ).params( argumentCollection = { verbose: arguments.verbose } ).run();
     }
 
 }

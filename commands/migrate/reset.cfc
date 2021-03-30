@@ -4,13 +4,10 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-    * @migrationsDirectory Override the default relative location of the migration files
-    * @verbose             If true, errors output a full stack trace
-    */
-    function run(
-        string migrationsDirectory = "",
-        boolean verbose = false
-    ) {
+     * @migrationsDirectory Override the default relative location of the migration files
+     * @verbose             If true, errors output a full stack trace
+     */
+    function run( string migrationsDirectory = "", boolean verbose = false ) {
         setup();
         setupDatasource();
 
@@ -27,8 +24,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         try {
             migrationService.reset();
             print.greenLine( "Database reset!" );
-        }
-        catch ( any e ) {
+        } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "Error when trying to reset the database:" );
@@ -44,11 +40,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 case "database":
                     var migration = e.tagContext[ 4 ];
                     var templateName = listLast( migration.template, "/" );
-                    var newline = "#chr(10)##chr(13)#";
-                    return error(
-                        len( e.detail ) ? e.detail : e.message,
-                        "#templateName##newline##e.queryError#"
-                    );
+                    var newline = "#chr( 10 )##chr( 13 )#";
+                    return error( len( e.detail ) ? e.detail : e.message, "#templateName##newline##e.queryError#" );
                 default:
                     rethrow;
             }

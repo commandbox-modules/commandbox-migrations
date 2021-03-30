@@ -22,7 +22,8 @@
     ],
     "scripts":{
         "onRelease":"publish",
-        "postPublish":"!git push && git push --tags"
+        "postPublish":"!git push && git push --tags",
+        "format": "cfformat run commands/**/*.cfc,ModuleConfig.cfc --overwrite"
     },
     "private":false,
     "license":[

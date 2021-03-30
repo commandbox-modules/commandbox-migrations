@@ -1,18 +1,14 @@
 /**
-* Rollback one or all of the migrations already ran against your database.
-*/
+ * Rollback one or all of the migrations already ran against your database.
+ */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-    * @once                Only rollback a single migration.
-    * @migrationsDirectory Override the default relative location of the migration files
-    * @verbose             If true, errors output a full stack trace
-    */
-    function run(
-        boolean once = false,
-        string migrationsDirectory = "",
-        boolean verbose = false
-    ) {
+     * @once                Only rollback a single migration.
+     * @migrationsDirectory Override the default relative location of the migration files
+     * @verbose             If true, errors output a full stack trace
+     */
+    function run( boolean once = false, string migrationsDirectory = "", boolean verbose = false ) {
         setup();
         setupDatasource();
 
@@ -30,10 +26,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         try {
             checkForInstalledMigrationTable();
 
-            if ( ! migrationService.hasMigrationsToRun( "down" ) ) {
-                print.line().yellowLine( "No migrations to rollback." ).line();
-            }
-            else if ( once ) {
+            if ( !migrationService.hasMigrationsToRun( "down" ) ) {
+                print
+                    .line()
+                    .yellowLine( "No migrations to rollback." )
+                    .line();
+            } else if ( once ) {
                 migrationService.runNextMigration(
                     direction = "down",
                     preProcessHook = ( migration ) => {
@@ -44,8 +42,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         print.green( "Rolled back:  " ).line( migration.componentName );
                     }
                 );
-            }
-            else {
+            } else {
                 migrationService.runAllMigrations(
                     direction = "down",
                     preProcessHook = ( migration ) => {
@@ -57,8 +54,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     }
                 );
             }
-        }
-        catch ( any e ) {
+        } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
@@ -73,11 +69,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 case "database":
                     var migration = e.tagContext[ 4 ];
                     var templateName = listLast( migration.template, "/" );
-                    var newline = "#chr(10)##chr(13)#";
-                    return error(
-                        len( e.detail ) ? e.detail : e.message,
-                        "#templateName##newline##e.queryError#"
-                    );
+                    var newline = "#chr( 10 )##chr( 13 )#";
+                    return error( len( e.detail ) ? e.detail : e.message, "#templateName##newline##e.queryError#" );
                 default:
                     rethrow;
             }
