@@ -1,6 +1,6 @@
 {
     "name":"CFMigrations Commands",
-    "version":"3.1.5",
+    "version":"3.2.0",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
@@ -23,7 +23,7 @@
     "scripts":{
         "onRelease":"publish",
         "postPublish":"!git push && git push --tags",
-        "format": "cfformat run commands/**/*.cfc,ModuleConfig.cfc --overwrite"
+        "format":"cfformat run commands/**/*.cfc,ModuleConfig.cfc --overwrite"
     },
     "private":false,
     "license":[
