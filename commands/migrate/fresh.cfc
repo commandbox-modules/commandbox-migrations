@@ -14,9 +14,15 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setup();
         setupDatasource();
 
+        if ( verbose ) {
+            print.blackOnYellowLine( "cfmigrations info:" );
+            print.line( variables.cfmigrationsInfo ).line();
+        }
+
         pagePoolClear();
-        if ( len(arguments.migrationsDirectory) )
+        if ( len( arguments.migrationsDirectory ) ) {
             setMigrationPath( arguments.migrationsDirectory );
+        }
 
         command( "migrate reset" )
             .params( argumentCollection = arguments )

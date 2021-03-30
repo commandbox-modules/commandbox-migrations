@@ -14,9 +14,15 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setup();
         setupDatasource();
 
+        if ( verbose ) {
+            print.blackOnYellowLine( "cfmigrations info:" );
+            print.line( variables.cfmigrationsInfo ).line();
+        }
+
         pagePoolClear();
-        if ( len(arguments.migrationsDirectory) )
+        if ( len( arguments.migrationsDirectory ) ) {
             setMigrationPath( arguments.migrationsDirectory );
+        }
 
         try {
             migrationService.reset();
@@ -24,6 +30,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
         catch ( any e ) {
             if ( verbose ) {
+                if ( structKeyExists( e, "Sql" ) ) {
+                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                }
                 rethrow;
             }
 

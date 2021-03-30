@@ -14,8 +14,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setupDatasource();
 
         if ( verbose ) {
-            systemOutput( "cfmigrations info:", true );
-            systemOutput( variables.cfmigrationsInfo, true );
+            print.blackOnYellowLine( "cfmigrations info:" );
+            print.line( variables.cfmigrationsInfo ).line();
         }
 
         try {
@@ -29,6 +29,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
         catch ( any e ) {
             if ( verbose ) {
+                if ( structKeyExists( e, "Sql" ) ) {
+                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                }
                 rethrow;
             }
 

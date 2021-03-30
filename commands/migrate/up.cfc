@@ -17,14 +17,16 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setupDatasource();
 
         if ( verbose ) {
-            systemOutput( "cfmigrations info:", true );
-            systemOutput( variables.cfmigrationsInfo, true );
+            print.blackOnYellowLine( "cfmigrations info:" );
+            print.line( variables.cfmigrationsInfo ).line();
         }
 
         pagePoolClear();
-        if ( len(arguments.migrationsDirectory) )
+        if ( len( arguments.migrationsDirectory ) ) {
             setMigrationPath( arguments.migrationsDirectory );
+        }
 
+        var currentlyRunningMigration = { "componentName": "UNKNOWN Migration" };
         try {
             checkForInstalledMigrationTable();
 
@@ -32,18 +34,36 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 print.line().yellowLine( "No migrations to run." ).line();
             }
             else if ( once ) {
-                migrationService.runNextMigration( "up", function( migration ) {
-                    print.line( "#migration.componentName# migrated successfully!" );
-                } );
+                migrationService.runNextMigration(
+                    direction = "up",
+                    preProcessHook = ( migration ) => {
+                        currentlyRunningMigration = migration;
+                        print.yellow( "Migrating: " ).line( migration.componentName );
+                    },
+                    postProcessHook = ( migration ) => {
+                        print.green( "Migrated:  " ).line( migration.componentName );
+                    }
+                );
             }
             else {
-                migrationService.runAllMigrations( "up", function( migration ) {
-                    print.line( "#migration.componentName# migrated successfully!" );
-                } );
+                migrationService.runAllMigrations(
+                    direction = "up",
+                    preProcessHook = ( migration ) => {
+                        currentlyRunningMigration = migration;
+                        print.yellow( "Migrating: " ).line( migration.componentName );
+                    },
+                    postProcessHook = ( migration ) => {
+                        print.green( "Migrated:  " ).line( migration.componentName );
+                    }
+                );
             }
         }
         catch ( any e ) {
             if ( verbose ) {
+                if ( structKeyExists( e, "Sql" ) ) {
+                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                }
                 rethrow;
             }
 

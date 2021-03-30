@@ -4,6 +4,8 @@ component {
     property name="fileSystemUtil" inject="FileSystem";
     property name="packageService" inject="PackageService";
     property name="JSONService" inject="JSONService";
+    property name="sqlHighlighter" inject="sqlHighlighter";
+    property name="sqlFormatter" inject="java:org.hibernate.jdbc.util.DDLFormatterImpl";
 
     function setup() {
         var cfmigrationsInfo = getCFMigrationsInfo();

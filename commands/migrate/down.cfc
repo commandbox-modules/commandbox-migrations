@@ -16,10 +16,17 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setup();
         setupDatasource();
 
-        pagePoolClear();
-        if ( len(arguments.migrationsDirectory) )
-            setMigrationPath( arguments.migrationsDirectory );
+        if ( verbose ) {
+            print.blackOnYellowLine( "cfmigrations info:" );
+            print.line( variables.cfmigrationsInfo ).line();
+        }
 
+        pagePoolClear();
+        if ( len( arguments.migrationsDirectory ) ) {
+            setMigrationPath( arguments.migrationsDirectory );
+        }
+
+        var currentlyRunningMigration = { "componentName": "UNKNOWN Migration" };
         try {
             checkForInstalledMigrationTable();
 
@@ -27,18 +34,36 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 print.line().yellowLine( "No migrations to rollback." ).line();
             }
             else if ( once ) {
-                migrationService.runNextMigration( "down", function( migration ) {
-                    print.line( "#migration.componentName# rolled back successfully!" );
-                } );
+                migrationService.runNextMigration(
+                    direction = "down",
+                    preProcessHook = ( migration ) => {
+                        currentlyRunningMigration = migration;
+                        print.yellow( "Rolling back: " ).line( migration.componentName );
+                    },
+                    postProcessHook = ( migration ) => {
+                        print.green( "Rolled back:  " ).line( migration.componentName );
+                    }
+                );
             }
             else {
-                migrationService.runAllMigrations( "down", function( migration ) {
-                    print.line( "#migration.componentName# rolled back successfully!" );
-                } );
+                migrationService.runAllMigrations(
+                    direction = "down",
+                    preProcessHook = ( migration ) => {
+                        currentlyRunningMigration = migration;
+                        print.yellow( "Rolling back: " ).line( migration.componentName );
+                    },
+                    postProcessHook = ( migration ) => {
+                        print.green( "Rolled back:  " ).line( migration.componentName );
+                    }
+                );
             }
         }
         catch ( any e ) {
             if ( verbose ) {
+                if ( structKeyExists( e, "Sql" ) ) {
+                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                }
                 rethrow;
             }
 

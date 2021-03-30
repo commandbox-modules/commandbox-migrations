@@ -19,13 +19,14 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
     ) {
         setup();
 
-        if ( len(arguments.migrationsDirectory) )
+        if ( len( arguments.migrationsDirectory ) ) {
             setMigrationPath( arguments.migrationsDirectory );
+        }
 
         arguments.migrationsDirectory = getMigrationPath();
 
         // Validate migrationsDirectory
-        if( !directoryExists( arguments.migrationsDirectory ) ) {
+        if ( !directoryExists( arguments.migrationsDirectory ) ) {
             directoryCreate( arguments.migrationsDirectory );
         }
 
