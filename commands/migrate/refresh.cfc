@@ -4,26 +4,23 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @migrationsDirectory Override the default relative location of the migration files
-     * @verbose             If true, errors output a full stack trace
+     * @manager.hint       The Migration Manager to use.
+     * @manager.optionsUDF completeManagers
+     * @seed.hint          If true, runs all seeders for the manager after creating a fresh database.
+     * @verbose.hint       If true, errors output a full stack trace
      */
-    function run( string migrationsDirectory = "", boolean verbose = false ) {
-        setup();
-        setupDatasource();
+    function run( string manager = "default", boolean seed = false, boolean verbose = false ) {
+        setup( arguments.manager );
 
-        if ( verbose ) {
+        if ( arguments.verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
             print.line( variables.cfmigrationsInfo ).line();
         }
 
         pagePoolClear();
-        if ( len( arguments.migrationsDirectory ) ) {
-            setMigrationPath( arguments.migrationsDirectory );
-        }
 
-        command( "migrate down" ).params( argumentCollection = { verbose: arguments.verbose } ).run();
-
-        command( "migrate up" ).params( argumentCollection = { verbose: arguments.verbose } ).run();
+        command( "migrate down" ).params( argumentCollection = arguments ).run();
+        command( "migrate up" ).params( argumentCollection = arguments ).run();
     }
 
 }

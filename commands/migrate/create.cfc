@@ -8,26 +8,25 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @name Name of the migration to create without the .cfc.
-     * @migrationsDirectory The base migrationsDirectory to create your migration in. Creates the migrationsDirectory if it does not exist.
-     * @open Open the file once generated
+     * @name.hint          Name of the migration to create without the .cfc.
+     * @manager.hint       The Migration Manager to use.
+     * @manager.optionsUDF completeManagers
+     * @open.hint          Open the file once generated.
      */
-    function run( required string name, string migrationsDirectory = "", boolean open = false ) {
-        setup();
+    function run( required string name, string manager = "default", boolean open = false ) {
+        setup( manager = arguments.manager, setupDatasource = false );
 
-        if ( len( arguments.migrationsDirectory ) ) {
-            setMigrationPath( arguments.migrationsDirectory );
-        }
-
-        arguments.migrationsDirectory = getMigrationPath();
+        var migrationsDirectory = variables.fileSystemUtil.resolvePath(
+            variables.migrationService.getMigrationsDirectory()
+        );
 
         // Validate migrationsDirectory
-        if ( !directoryExists( arguments.migrationsDirectory ) ) {
-            directoryCreate( arguments.migrationsDirectory );
+        if ( !directoryExists( migrationsDirectory ) ) {
+            directoryCreate( migrationsDirectory );
         }
 
         var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" );
-        var migrationPath = "#arguments.migrationsDirectory#/#timestamp#_#arguments.name#.cfc";
+        var migrationPath = "#migrationsDirectory##timestamp#_#arguments.name#.cfc";
 
         var migrationContent = fileRead( "/commandbox-migrations/templates/Migration.txt" );
 

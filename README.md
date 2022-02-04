@@ -2,29 +2,117 @@
 
 ## Run your [`cfmigrations`](https://github.com/elpete/cfmigrations) from CommandBox
 
-## Upgrading from v2.0.0?
+
+## Upgrading to v4.0.0?
+
+v4 brings a new configuration structure and file.
+This pairs with new features in CFMigrations to allow for multiple named migration managers and new seeding capabilities.
+Migrations will still run in v4 using the old configuration structure and location, but it is highly recommended you upgrade.
+
+You can create the new `.cfmigrations.json` config file by running `migrate init`.
+
+The new config file format mirrors `CFMigrations`:
+
+```json
+{
+    "default": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "schema": "${DB_SCHEMA}",
+            "migrationsTable": "cfmigrations",
+            "connectionInfo": {
+                "password": "${DB_PASSWORD}",
+                "connectionString": "${DB_CONNECTIONSTRING}",
+                "class": "${DB_CLASS}",
+                "username": "${DB_USER}",
+                "bundleName": "${DB_BUNDLENAME}",
+                "bundleVersion": "${DB_BUNDLEVERSION}"
+            }
+        }
+    }
+}
+```
+
+More managers can be added as new top-level keys:
+
+```json
+{
+    "default": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "schema": "${DB_SCHEMA}",
+            "migrationsTable": "cfmigrations",
+            "connectionInfo": {
+                "password": "${DB_PASSWORD}",
+                "connectionString": "${DB_CONNECTIONSTRING}",
+                "class": "${DB_CLASS}",
+                "username": "${DB_USER}",
+                "bundleName": "${DB_BUNDLENAME}",
+                "bundleVersion": "${DB_BUNDLEVERSION}"
+            }
+        }
+    },
+    "alternate": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/other-migrations/",
+        "seedsDirectory": "resources/database/other-seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "schema": "${DB_SCHEMA}",
+            "migrationsTable": "cfmigrations2",
+            "connectionInfo": {
+                "password": "${DB_PASSWORD}",
+                "connectionString": "${DB_CONNECTIONSTRING}",
+                "class": "${DB_CLASS}",
+                "username": "${DB_USER}",
+                "bundleName": "${DB_BUNDLENAME}",
+                "bundleVersion": "${DB_BUNDLEVERSION}"
+            }
+        }
+    }
+}
+```
+
+Each `migrate` command takes an optional `manager` string to use the specified configuration.
+
+## Upgrading to v3.0.0?
 
 Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDiscover`.
 
 ## Setup
 
-You need to set up some information in the `box.json` in your application root folder:
+You need to create a `.cfmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`:
 
 ```json
-"cfmigrations": {
-    "defaultGrammar": "AutoDiscover@qb",
-    "schema": "${DB_SCHEMA}",
-    "connectionInfo": {
-        "class": "${DB_CLASS}",
-        "connectionString": "${DB_CONNECTIONSTRING}",
-        "username": "${DB_USER}",
-        "password": "${DB_PASSWORD}", 
-        "bundleName": "${DB_BUNDLENAME}", 
-        "bundleVersion": "${DB_BUNDLEVERSION}"
-    },
-   "migrationsDirectory": "resources/database/migrations"
+{
+    "default": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "schema": "${DB_SCHEMA}",
+            "migrationsTable": "cfmigrations",
+            "connectionInfo": {
+                "password": "${DB_PASSWORD}",
+                "connectionString": "${DB_CONNECTIONSTRING}",
+                "class": "${DB_CLASS}",
+                "username": "${DB_USER}",
+                "bundleName": "${DB_BUNDLENAME}",
+                "bundleVersion": "${DB_BUNDLEVERSION}"
+            }
+        }
+    }
 }
 ```
+
+Additional managers can be added as new top-level keys.
 
 The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
 Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
@@ -40,6 +128,8 @@ already installed when it isn't because it detects it in a different schema.
 The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
 
 The `migrationsDirectory` sets the default location for the migration scripts.  This setting is optional.
+
+The `seedsDirectory` sets the default location for the seeder scripts.  This setting is optional.
 
 > When using MySQL with CommandBox 5 or greater, two additional elements are required in the `connectionInfo` struct:
 > `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`
@@ -130,7 +220,7 @@ You would update your `.gitignore` file to not ignore the `.env.example` file:
 
 ### `migrate init`
 
-Creates the migration struct in your `box.json`, if it doesn't already exist.
+Creates the migration config file as `.cfmigrations.json`, if it doesn't already exist.
 
 ### `migrate install`
 
@@ -170,3 +260,11 @@ a fresh copy of your migrated database.
 ### `migrate uninstall`
 
 Removes the `cfmigrations` table after running down any ran migrations.
+
+### `migrate seed create [name]`
+
+Creates a new Seeder file.
+
+### `migrate seed run`
+
+Runs one or all Seeders.

@@ -9,40 +9,27 @@ component {
     property name="packageService" inject="PackageService";
     property name="JSONService" inject="JSONService";
 
-    function run() {
+    function run( boolean open = false ) {
         var directory = getCWD();
-        // Check and see if box.json exists
-        if ( !packageService.isPackage( directory ) ) {
-            return error( "File [#packageService.getDescriptorPath( directory )#] does not exist." );
-        }
 
-        // Read without defaulted values
-        var boxJSON = packageService.readPackageDescriptorRaw( directory );
+        var configPath = "#directory#/.cfmigrations.json";
 
-        if ( JSONService.check( boxJSON, "cfmigrations" ) ) {
-            print.yellowLine( "cfmigrations already configured for this project." );
+        // Check and see if a .cfmigrations.json file exists
+        if ( fileExists( configPath ) ) {
+            print.yellowLine( ".cfmigrations.json already exists." );
             return;
         }
 
-        JSONService.set(
-            boxJSON,
-            {
-                "cfmigrations.defaultGrammar": "AutoDiscover@qb",
-                "cfmigrations.schema": "${DB_SCHEMA}",
-                "cfmigrations.connectionInfo.class": "${DB_CLASS}",
-                "cfmigrations.connectionInfo.connectionString": "${DB_CONNECTIONSTRING}",
-                "cfmigrations.connectionInfo.username": "${DB_USER}",
-                "cfmigrations.connectionInfo.password": "${DB_PASSWORD}",
-                "cfmigrations.connectionInfo.bundleName": "${DB_BUNDLENAME}",
-                "cfmigrations.connectionInfo.bundleVersion": "${DB_BUNDLEVERSION}",
-                "cfmigrations.migrationsDirectory": "resources/database/migrations"
-            },
-            false
-        );
+        var configStub = fileRead( "/commandbox-migrations/templates/config.txt" );
 
-        // Write the file back out.
-        packageService.writePackageDescriptor( boxJSON, directory );
-        print.greenLine( "cfmigrations configured!" );
+        file action="write" file="#configPath#" mode="777" output="#trim( configStub )#";
+
+        print.greenLine( "Created .cfmigrations config file." );
+
+        // Open file?
+        if ( arguments.open ) {
+            openPath( configPath );
+        }
     }
 
 }

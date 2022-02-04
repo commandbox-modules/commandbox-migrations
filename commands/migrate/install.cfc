@@ -7,11 +7,12 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @verbose If true, errors will output a full stack trace.
+     * @manager.hint       The Migration Manager to use.
+     * @manager.optionsUDF completeManagers
+     * @verbose.hint       If true, errors will output a full stack trace.
      */
-    function run( boolean verbose = false ) {
-        setup();
-        setupDatasource();
+    function run( string manager = "default", boolean verbose = false ) {
+        setup( arguments.manager );
 
         if ( verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
@@ -19,12 +20,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         try {
-            if ( migrationService.isMigrationTableInstalled() ) {
+            if ( variables.migrationService.isReady() ) {
                 print.line( "Migration table already installed." );
                 return;
             }
 
-            migrationService.install();
+            variables.migrationService.install();
             print.line( "Migration table installed!" ).line();
         } catch ( any e ) {
             if ( verbose ) {

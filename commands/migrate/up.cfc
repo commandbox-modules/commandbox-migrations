@@ -4,42 +4,42 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @once                Only apply a single migration.
-     * @migrationsDirectory Override the default relative location of the migration files
-     * @verbose             If true, errors output a full stack trace
+     * @manager.hint       The Migration Manager to use.
+     * @manager.optionsUDF completeManagers
+     * @seed.hint          If true, runs all seeders for the manager after creating a fresh database.
+     * @once.hint          Only apply a single migration.
+     * @verbose.hint       If true, errors output a full stack trace.
      */
-    function run( boolean once = false, string migrationsDirectory = "", boolean verbose = false ) {
-        setup();
-        setupDatasource();
+    function run(
+        string manager = "default",
+        boolean seed = false,
+        boolean once = false,
+        boolean verbose = false
+    ) {
+        setup( arguments.manager );
 
-        if ( verbose ) {
+        if ( arguments.verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
             print.line( variables.cfmigrationsInfo ).line();
         }
 
         pagePoolClear();
-        if ( len( arguments.migrationsDirectory ) ) {
-            setMigrationPath( arguments.migrationsDirectory );
-        }
 
         var currentlyRunningMigration = { "componentName": "UNKNOWN Migration" };
         try {
             checkForInstalledMigrationTable();
 
             if ( !migrationService.hasMigrationsToRun( "up" ) ) {
-                print
-                    .line()
-                    .yellowLine( "No migrations to run." )
-                    .line();
+                print.line().yellowLine( "No migrations to run." ).line();
             } else if ( once ) {
                 migrationService.runNextMigration(
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName );
+                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration ) => {
-                        print.green( "Migrated:  " ).line( migration.componentName );
+                        print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
                     }
                 );
             } else {
@@ -47,10 +47,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName );
+                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration ) => {
-                        print.green( "Migrated:  " ).line( migration.componentName );
+                        print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
                     }
                 );
             }
@@ -77,6 +77,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 default:
                     rethrow;
             }
+        }
+
+        if ( arguments.seed ) {
+            print.line();
+            command( "migrate seed run" )
+                .params( argumentCollection = { manager: arguments.manager, verbose: arguments.verbose } )
+                .run();
         }
 
         print.line();

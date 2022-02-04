@@ -4,58 +4,52 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @once                Only rollback a single migration.
-     * @migrationsDirectory Override the default relative location of the migration files
-     * @verbose             If true, errors output a full stack trace
+     * @once.hint          Only rollback a single migration.
+     * @manager.hint       The Migration Manager to use.
+     * @manager.optionsUDF completeManagers
+     * @verbose.hint       If true, errors output a full stack trace.
      */
-    function run( boolean once = false, string migrationsDirectory = "", boolean verbose = false ) {
-        setup();
-        setupDatasource();
+    function run( boolean once = false, string manager = "default", boolean verbose = false ) {
+        setup( arguments.manager );
 
-        if ( verbose ) {
+        if ( arguments.verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
             print.line( variables.cfmigrationsInfo ).line();
         }
 
         pagePoolClear();
-        if ( len( arguments.migrationsDirectory ) ) {
-            setMigrationPath( arguments.migrationsDirectory );
-        }
 
         var currentlyRunningMigration = { "componentName": "UNKNOWN Migration" };
         try {
             checkForInstalledMigrationTable();
 
-            if ( !migrationService.hasMigrationsToRun( "down" ) ) {
-                print
-                    .line()
-                    .yellowLine( "No migrations to rollback." )
-                    .line();
-            } else if ( once ) {
-                migrationService.runNextMigration(
+            if ( !variables.migrationService.hasMigrationsToRun( "down" ) ) {
+                print.line().yellowLine( "No migrations to rollback." ).line();
+            } else if ( arguments.once ) {
+                variables.migrationService.runNextMigration(
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName );
+                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration ) => {
-                        print.green( "Rolled back:  " ).line( migration.componentName );
+                        print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
                     }
                 );
             } else {
-                migrationService.runAllMigrations(
+                variables.migrationService.runAllMigrations(
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName );
+                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration ) => {
-                        print.green( "Rolled back:  " ).line( migration.componentName );
+                        print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
                     }
                 );
             }
         } catch ( any e ) {
-            if ( verbose ) {
+            if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );

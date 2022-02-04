@@ -1,6 +1,6 @@
 {
     "name":"CFMigrations Commands",
-    "version":"3.2.3",
+    "version":"4.0.0-beta.1",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
@@ -33,7 +33,7 @@
         }
     ],
     "dependencies":{
-        "cfmigrations":"^2.0.0"
+        "cfmigrations":"^3.0.6"
     },
     "installPaths":{
         "cfmigrations":"modules/cfmigrations/"
