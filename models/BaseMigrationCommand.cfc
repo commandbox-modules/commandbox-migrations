@@ -13,9 +13,16 @@ component {
             error( "No manager found named [#arguments.manager#]. Available managers are: #config.keyList( ", " )#" );
         }
         var settings = config[ arguments.manager ];
-        settings.migrationsDirectory = fileSystemUtil.makePathRelative(
-            fileSystemUtil.resolvePath( settings.migrationsDirectory )
-        );
+        if ( len( trim( settings.migrationsDirectory ) ) ) {
+            settings.migrationsDirectory = fileSystemUtil.makePathRelative(
+                fileSystemUtil.resolvePath( settings.migrationsDirectory )
+            );
+        }
+        if ( len( trim( settings.seedsDirectory ) ) ) {
+            settings.seedsDirectory = fileSystemUtil.makePathRelative(
+                fileSystemUtil.resolvePath( settings.seedsDirectory )
+            );
+        }
         if ( arguments.setupDatasource ) {
             param settings.properties = {};
             if ( settings.properties.keyExists( "connectionInfo" ) ) {
