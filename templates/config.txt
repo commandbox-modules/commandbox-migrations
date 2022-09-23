@@ -1,9 +1,8 @@
 {
     "default": {
         "manager": "cfmigrations.models.QBMigrationManager",
-        "migrationsDirectory": "resources/database/migrations",
-        "seedsDirectory": "resources/database/seeds",
-        "seedEnvironments" : "development"
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
         "properties": {
             "defaultGrammar": "AutoDiscover@qb",
             "schema": "${DB_SCHEMA}",
