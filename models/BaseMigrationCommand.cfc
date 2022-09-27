@@ -5,7 +5,7 @@ component {
     property name="JSONService" inject="JSONService";
     property name="sqlHighlighter" inject="sqlHighlighter";
 	property name="systemSettings" inject="SystemSettings";
-    property name="sqlFormatter" inject="java:org.hibernate.jdbc.util.DDLFormatterImpl";
+    property name="sqlFormatter" inject="Formatter@sqlFormatter";
 
     function setup( required string manager, boolean setupDatasource = true ) {
         var config = getCFMigrationsInfo();

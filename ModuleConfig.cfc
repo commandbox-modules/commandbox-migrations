@@ -1,6 +1,6 @@
 component {
 
-    this.dependencies = [ "cfmigrations" ];
+    this.dependencies = [ "cfmigrations", "sqlFormatter" ];
 
     function configure() {
         var sqlHighlighter = {
@@ -8,7 +8,7 @@ component {
                 "toAnsi": () => str
             } )
         };
-        
+
         try {
             sqlHighlighter = createObject( "java", "org.jline.builtins.Nano$SyntaxHighlighter" ).build(
                 createObject( "java", "java.io.File" )
