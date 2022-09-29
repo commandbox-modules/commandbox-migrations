@@ -32,6 +32,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         file action="write" file="#migrationPath#" mode="777" output="#trim( migrationContent )#";
 
+        if( find("Windows",server.os.name) ) {
+            var matches = refind("^/([a-zA-Z])_drive(.*)", migrationPath, 1, true);
+            migrationPath = matches.match[2] & ":" & matches.match[3];
+        }
+
         print.greenLine( "Created #migrationPath#" );
 
         // Open file?
