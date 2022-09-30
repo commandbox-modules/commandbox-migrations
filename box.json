@@ -1,6 +1,6 @@
 {
     "name":"CFMigrations Commands",
-    "version":"4.0.2",
+    "version":"4.0.3",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
