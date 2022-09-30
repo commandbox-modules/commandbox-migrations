@@ -18,7 +18,7 @@ component {
                 fileSystemUtil.resolvePath( settings.migrationsDirectory )
             );
         }
-        if ( len( trim( settings.seedsDirectory ) ) ) {
+        if ( settings.keyExists( "seedsDirectory" ) && len( trim( settings.seedsDirectory ) ) ) {
             settings.seedsDirectory = fileSystemUtil.makePathRelative(
                 fileSystemUtil.resolvePath( settings.seedsDirectory )
             );
