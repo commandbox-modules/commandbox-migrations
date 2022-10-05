@@ -22,6 +22,9 @@ component {
             settings.seedsDirectory = fileSystemUtil.makePathRelative(
                 fileSystemUtil.resolvePath( settings.seedsDirectory )
             );
+            if ( !directoryExists( settings.seedsDirectory ) ) {
+                directoryCreate( settings.seedsDirectory );
+            }
         }
         if ( arguments.setupDatasource ) {
             param settings.properties = {};
