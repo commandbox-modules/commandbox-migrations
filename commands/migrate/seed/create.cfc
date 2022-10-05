@@ -13,10 +13,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
     function run( required string name, string manager = "default", boolean open = false ) {
         setup( manager = arguments.manager, setupDatasource = false );
 
-        var seedsDirectory = variables.fileSystemUtil.resolvePath(
-            variables.migrationService.getSeedsDirectory()
-        );
-        print.line( seedsDirectory );
+        var seedsDirectory = expandPath( variables.migrationService.getSeedsDirectory() );
 
         // Validate seedsDirectory
         if ( !directoryExists( seedsDirectory ) ) {
