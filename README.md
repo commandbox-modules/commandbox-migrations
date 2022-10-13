@@ -115,7 +115,7 @@ You need to create a `.cfmigrations.json` config file in your application root f
 Additional managers can be added as new top-level keys.
 
 The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
-Available grammar options can be found in the [qb documentation](https://elpete.gitbooks.io/qb/content/).
+Available grammar options can be found in the [qb documentation](https://qb.ortusbooks.com).
 
 > You don't have to use qb's `SchemaBuilder` to use `cfmigrations`.
 > Just run your own migrations using `queryExecute` and you can have complete control over your sql.
