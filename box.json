@@ -1,6 +1,6 @@
 {
     "name":"CFMigrations Commands",
-    "version":"4.0.4",
+    "version":"5.0.0",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
@@ -33,7 +33,7 @@
         }
     ],
     "dependencies":{
-        "cfmigrations":"^3.0.6",
+        "cfmigrations":"^4.0.0",
         "sqlformatter":"^1.1.3+31"
     },
     "installPaths":{
