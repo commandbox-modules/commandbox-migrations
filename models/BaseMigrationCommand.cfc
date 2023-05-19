@@ -19,19 +19,14 @@ component {
             );
         }
         if ( settings.keyExists( "seedsDirectory" ) && len( trim( settings.seedsDirectory ) ) ) {
-            
-            print.line( 'before make relative '& settings.seedsDirectory )
             settings.seedsDirectory = fileSystemUtil.makePathRelative(
                 fileSystemUtil.resolvePath( settings.seedsDirectory )
             );
-            
-            print.line( 'fileSystemUtil.resolvePath( settings.seedsDirectory ) '& fileSystemUtil.resolvePath( settings.seedsDirectory ) )
-            print.line( settings.seedsDirectory )
-             if ( !directoryExists( expandPath( settings.seedsDirectory ) ) ) {
-                 directoryCreate( expandPath( settings.seedsDirectory ) );
-                 print.line( "Created seeds directory" )
-             }
-             print.line( expandPath( settings.seedsDirectory ) )
+
+            if ( !directoryExists( expandPath( settings.seedsDirectory ) ) ) {
+                directoryCreate( expandPath( settings.seedsDirectory ) );
+                print.line( "Created seeds directory" )
+            }
         }
         if ( arguments.setupDatasource ) {
             param settings.properties = {};
