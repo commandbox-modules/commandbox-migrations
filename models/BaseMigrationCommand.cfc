@@ -19,12 +19,19 @@ component {
             );
         }
         if ( settings.keyExists( "seedsDirectory" ) && len( trim( settings.seedsDirectory ) ) ) {
+            
+            print.line( 'before make relative '& settings.seedsDirectory )
             settings.seedsDirectory = fileSystemUtil.makePathRelative(
                 fileSystemUtil.resolvePath( settings.seedsDirectory )
             );
-            if ( !directoryExists( settings.seedsDirectory ) ) {
-                directoryCreate( settings.seedsDirectory );
-            }
+            
+            print.line( 'fileSystemUtil.resolvePath( settings.seedsDirectory ) '& fileSystemUtil.resolvePath( settings.seedsDirectory ) )
+            print.line( settings.seedsDirectory )
+             if ( !directoryExists( expandPath( settings.seedsDirectory ) ) ) {
+                 directoryCreate( expandPath( settings.seedsDirectory ) );
+                 print.line( "Created seeds directory" )
+             }
+             print.line( expandPath( settings.seedsDirectory ) )
         }
         if ( arguments.setupDatasource ) {
             param settings.properties = {};
@@ -78,20 +85,16 @@ component {
     }
 
     private struct function getCFMigrationsInfo() {
-        if ( variables.keyExists( "cfmigrationsInfo" ) ) {
-            return variables.cfmigrationsInfo;
-        }
-
-        variables.cfmigrationsInfoType = "boxJSON";
+        var cfmigrationsInfoType = "boxJSON";
 
         var directory = getCWD();
 
         // Check and see if a .cfmigrations.json file exists
         if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
-            variables.cfmigrationsInfo = deserializeJSON( fileRead( "#directory#/.cfmigrations.json" ) );
-            variables.systemSettings.expandDeepSystemSettings( variables.cfmigrationsInfo );
-            variables.cfmigrationsInfoType = "cfmigrations";
-            return variables.cfmigrationsInfo;
+            var cfmigrationsInfo = deserializeJSON( fileRead( "#directory#/.cfmigrations.json" ) );
+            variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
+            cfmigrationsInfoType = "cfmigrations";
+            return cfmigrationsInfo;
         }
 
         // Check and see if box.json exists
@@ -107,10 +110,10 @@ component {
         var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
 
         if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
-            variables.cfmigrationsInfo = boxJSONMigrationsInfo;
-            variables.systemSettings.expandDeepSystemSettings( variables.cfmigrationsInfo );
-            variables.cfmigrationsInfoType = "cfmigrations";
-            return variables.cfmigrationsInfo;
+            var cfmigrationsInfo = boxJSONMigrationsInfo;
+            variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
+            cfmigrationsInfoType = "cfmigrations";
+            return cfmigrationsInfo;
         }
 
         print.boldUnderscoredYellowLine( "The format of the migrations configuration has changed in v4." );
@@ -129,7 +132,7 @@ component {
             properties[ "schema" ] = boxJSONMigrationsInfo.schema;
         }
 
-        variables.cfmigrationsInfo = {
+        var cfmigrationsInfo = {
             "default": {
                 "manager": "cfmigrations.models.QBMigrationManager",
                 "migrationsDirectory": boxJSONMigrationsInfo.migrationsDirectory,
@@ -137,16 +140,39 @@ component {
             }
         };
 
-        variables.systemSettings.expandDeepSystemSettings( variables.cfmigrationsInfo );
-        return variables.cfmigrationsInfo;
+        variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
+        return cfmigrationsInfo;
+    }
+
+    private string function getCFMigrationsType() {
+        var directory = getCWD();
+
+        // Check and see if a .cfmigrations.json file exists
+        if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
+            return "cfmigrations";
+        }
+
+        // Check and see if box.json exists
+        if( !packageService.isPackage( directory ) ) {
+            return error( "File [#packageService.getDescriptorPath( directory )#] does not exist." );
+        }
+
+        var boxJSON = packageService.readPackageDescriptor( directory );
+        var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
+
+        if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
+            return "cfmigrations";
+        }
+
+        return "boxJSON";
     }
 
     function completeManagers( string paramSoFar ) {
-        var config = getCFMigrationsInfo();
-        if ( variables.cfmigrationsInfoType == "boxJSON" ) {
+        var type = getCFMigrationsType();
+        if ( type == "boxJSON" ) {
             return [];
         }
-        return config.keyArray()
+        return getCFMigrationsInfo().keyArray()
             .filter( ( manager ) => startsWith( manager, paramSoFar ) )
             .map( ( manager ) => ( { "name": manager, "group": "Managers" } ) );
     }
