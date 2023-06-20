@@ -44,14 +44,6 @@ component {
 
     function installDatasource( required struct connectionInfo, string datasourceName = "cfmigrations" ) {
         var datasources = getApplicationSettings().datasources ?: {};
-        if ( left( shell.getVersion(), 1 ) GTE 5 ) {
-            if ( !JSONService.check( arguments.connectionInfo, "bundleName" ) ) {
-                return error( "There is no `bundleName` key in your connectionInfo. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations" );
-            }
-            if ( !JSONService.check( arguments.connectionInfo, "bundleVersion" ) ) {
-                return error( "There is no `bundleVersion` key in your connectionInfo. Please create one with the necessary values. See https://github.com/commandbox-modules/commandbox-migrations" );
-            }
-        }
         datasources[ "cfmigrations" ] = arguments.connectionInfo;
         application action='update' datasources=datasources;
         application action='update' datasource='#arguments.datasourceName#';

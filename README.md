@@ -20,16 +20,15 @@ The new config file format mirrors `CFMigrations`:
         "migrationsDirectory": "resources/database/migrations/",
         "seedsDirectory": "resources/database/seeds/",
         "properties": {
-            "defaultGrammar": "AutoDiscover@qb",
+            "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
             "migrationsTable": "cfmigrations",
             "connectionInfo": {
-                "password": "${DB_PASSWORD}",
-                "connectionString": "${DB_CONNECTIONSTRING}",
-                "class": "${DB_CLASS}",
+                "host": "${DB_HOST}",
                 "username": "${DB_USER}",
-                "bundleName": "${DB_BUNDLENAME}",
-                "bundleVersion": "${DB_BUNDLEVERSION}"
+                "password": "${DB_PASSWORD}",
+                "database": "${DB_DATABASE}",
+                "type": "mysql"
             }
         }
     }
@@ -45,16 +44,15 @@ More managers can be added as new top-level keys:
         "migrationsDirectory": "resources/database/migrations/",
         "seedsDirectory": "resources/database/seeds/",
         "properties": {
-            "defaultGrammar": "AutoDiscover@qb",
+            "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
             "migrationsTable": "cfmigrations",
             "connectionInfo": {
-                "password": "${DB_PASSWORD}",
-                "connectionString": "${DB_CONNECTIONSTRING}",
-                "class": "${DB_CLASS}",
+                "host": "${DB_HOST}",
                 "username": "${DB_USER}",
-                "bundleName": "${DB_BUNDLENAME}",
-                "bundleVersion": "${DB_BUNDLEVERSION}"
+                "password": "${DB_PASSWORD}",
+                "database": "${DB_DATABASE}",
+                "type": "mysql"
             }
         }
     },
@@ -63,16 +61,15 @@ More managers can be added as new top-level keys:
         "migrationsDirectory": "resources/database/other-migrations/",
         "seedsDirectory": "resources/database/other-seeds/",
         "properties": {
-            "defaultGrammar": "AutoDiscover@qb",
+            "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
             "migrationsTable": "cfmigrations2",
             "connectionInfo": {
-                "password": "${DB_PASSWORD}",
-                "connectionString": "${DB_CONNECTIONSTRING}",
-                "class": "${DB_CLASS}",
+                "host": "${DB_HOST}",
                 "username": "${DB_USER}",
-                "bundleName": "${DB_BUNDLENAME}",
-                "bundleVersion": "${DB_BUNDLEVERSION}"
+                "password": "${DB_PASSWORD}",
+                "database": "${DB_DATABASE}",
+                "type": "mysql"
             }
         }
     }
@@ -96,16 +93,15 @@ You need to create a `.cfmigrations.json` config file in your application root f
         "migrationsDirectory": "resources/database/migrations/",
         "seedsDirectory": "resources/database/seeds/",
         "properties": {
-            "defaultGrammar": "AutoDiscover@qb",
+            "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
             "migrationsTable": "cfmigrations",
             "connectionInfo": {
-                "password": "${DB_PASSWORD}",
-                "connectionString": "${DB_CONNECTIONSTRING}",
-                "class": "${DB_CLASS}",
+                "host": "${DB_HOST}",
                 "username": "${DB_USER}",
-                "bundleName": "${DB_BUNDLENAME}",
-                "bundleVersion": "${DB_BUNDLEVERSION}"
+                "password": "${DB_PASSWORD}",
+                "database": "${DB_DATABASE}",
+                "type": "mysql"
             }
         }
     }
@@ -165,16 +161,15 @@ queryExecute( "
 
 You may notice that the values are surrounded in an escape sequence (`${}`). This is how CommandBox injects environment variables into your `box.json` file. Why environment variables? Because you don't want to commit your database credentials in to source control. Also, you want to be able to have different values in different environments. Whether you have dedicated servers or are running your application in containers, you can find the supported way to add environment variables to your platform.
 
-For local development using CommandBox, I recommend using the package [`commandbox-dotenv`](https://forgebox.io/view/commandbox-dotenv). This package lets you define environment variables in a `.env` file in the root of your project. CommandBox will add these to your server when starting it up and also to the CommandBox instance if you load or reload the shell in a directory with a `.env` file. That is how we will get our environment variables available for `commandbox-migrations`.
+For local development using CommandBox, I recommend using environment files. This lets you define environment variables in a `.env` file in the root of your project. CommandBox will add these to your server when starting it up and also to the CommandBox instance if you load or reload the shell in a directory with a `.env` file. That is how we will get our environment variables available for `commandbox-migrations`.
 
-With `commandbox-dotenv` installed, create a `.env` file in the root of you project. At the very least, it will look like this:
+Create a `.env` file in the root of you project. At the very least, it will look like this:
 
 ```env
 # MYSQL VERSION
 DB_SCHEMA=test_db
 DB_DATABASE=test_db
-DB_CLASS=org.gjt.mm.mysql.Driver
-DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/test_db?useUnicode=true&characterEncoding=UTF-8&useLegacyDatetimeCode=true
+DB_HOST=localhost
 DB_USER=test
 DB_PASSWORD=pass1234
 ```
@@ -183,12 +178,9 @@ DB_PASSWORD=pass1234
 # MSSQL VERSION
 DB_SCHEMA=dbo
 DB_DATABASE=test_db
-DB_CLASS=com.microsoft.sqlserver.jdbc.SQLServerDriver
-DB_CONNECTIONSTRING=jdbc:sqlserver://localhost:1433;DATABASENAME=test_db;sendStringParametersAsUnicode=true;SelectMethod=direct
+DB_HOST=localhost
 DB_USER=test
 DB_PASSWORD=pass1234
-DB_BUNDLENAME=mssqljdbc4
-DB_BUNDLEVERSION=4.0.2206.100
 ```
 
 
@@ -201,11 +193,10 @@ I recommend adding this file to your `.gitignore`
 An added step to help new users get up to speed with the needed environment variables for your project is to add an `.env.example` file to the root of your project as well. This file would have all the keys needed, but no values filled out. Like so:
 
 ```env
-DB_SCHEMA=
-DB_DATABASE=
-DB_CLASS=
-DB_CONNECTIONSTRING=
-DB_USER=
+DB_SCHEMA=test_db
+DB_DATABASE=test_db
+DB_HOST=localhost
+DB_USER=test
 DB_PASSWORD=
 ```
 
