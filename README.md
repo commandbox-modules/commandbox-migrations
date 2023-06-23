@@ -224,15 +224,33 @@ Creates a migration file with an `up` and `down` method.
 The file name will be prepended with the current timestamp
 in the format that `cfmigrations` expects.
 
-### `migrate up [--once]`
+### `migrate up [--once] [--verbose] [--pretend] [file]`
 
 Runs all available migrations up. Passing the `--once` flag will only
 run a single migration up (if any are available).
 
-### `migrate down [--once]`
+Passing the `--verbose` flag with show the datasource information passed
+as well as the full stack trace of any errors.
+
+Passing the `--pretend` flag will not actually run the migrations but
+instead print out the SQL that would have been run to the console.
+
+Passing a `file` is used in conjunction with the `--pretend` flag.
+If provided, the outputted sql will be saved to the file path provided.
+
+### `migrate down [--once] [--verbose] [--pretend] [file]`
 
 Runs all available migrations down. Passing the `--once` flag will only
 run a single migration down (if any are available).
+
+Passing the `--verbose` flag with show the datasource information passed
+as well as the full stack trace of any errors.
+
+Passing the `--pretend` flag will not actually run the migrations but
+instead print out the SQL that would have been run to the console.
+
+Passing a `file` is used in conjunction with the `--pretend` flag.
+If provided, the outputted sql will be saved to the file path provided.
 
 ### `migrate refresh`
 
