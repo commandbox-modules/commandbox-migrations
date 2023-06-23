@@ -8,8 +8,16 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
      * @manager.hint       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
      * @verbose.hint       If true, errors output a full stack trace.
+     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
      */
-    function run( boolean once = false, string manager = "default", boolean verbose = false ) {
+    function run(
+        boolean once = false,
+        string manager = "default",
+        boolean verbose = false,
+        boolean pretend = false,
+        string file
+    ) {
         setup( arguments.manager );
 
         if ( arguments.verbose ) {
@@ -21,6 +29,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         var currentlyRunningMigration = { "componentName": "UNKNOWN Migration" };
         try {
+            var statements = [];
             checkForInstalledMigrationTable();
 
             if ( !variables.migrationService.hasMigrationsToRun( "down" ) ) {
@@ -32,9 +41,27 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         currentlyRunningMigration = migration;
                         print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
                     },
-                    postProcessHook = ( migration ) => {
-                        print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
-                    }
+                    postProcessHook = ( migration, schema, qb ) => {
+                        if (!pretend) {
+                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                        } else {
+                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.line();
+                            for ( var q in schema.getQueryLog() ) {
+                                var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
+                                statements.append( inlineSql );
+                                print.line( inlineSql );
+                                print.line();
+                            }
+                            for ( var q in qb.getQueryLog() ) {
+                                var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
+                                statements.append( inlineSql );
+                                print.line( inlineSql );
+                                print.line();
+                            }
+                        }
+                    },
+                    pretend = arguments.pretend
                 );
             } else {
                 variables.migrationService.runAllMigrations(
@@ -43,9 +70,27 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         currentlyRunningMigration = migration;
                         print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
                     },
-                    postProcessHook = ( migration ) => {
-                        print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
-                    }
+                    postProcessHook = ( migration, schema, qb ) => {
+                        if (!pretend) {
+                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                        } else {
+                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.line();
+                            for ( var q in schema.getQueryLog() ) {
+                                var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
+                                statements.append( inlineSql );
+                                print.line( inlineSql );
+                                print.line();
+                            }
+                            for ( var q in qb.getQueryLog() ) {
+                                var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
+                                statements.append( inlineSql );
+                                print.line( inlineSql );
+                                print.line();
+                            }
+                        }
+                    },
+                    pretend = arguments.pretend
                 );
             }
         } catch ( any e ) {
@@ -71,6 +116,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 default:
                     rethrow;
             }
+        }
+
+        if ( arguments.pretend && !isNull( arguments.file ) ) {
+            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="666" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
+            print.whiteOnBlueLine( "Wrote SQL to file: #arguments.file#" );
         }
 
         print.line();
