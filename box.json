@@ -33,7 +33,7 @@
         }
     ],
     "dependencies":{
-        "cfmigrations":"^4.1.0",
+        "cfmigrations":"^5.0.0",
         "sqlformatter":"^1.1.3+31"
     },
     "installPaths":{
