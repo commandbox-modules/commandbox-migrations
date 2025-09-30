@@ -12,10 +12,17 @@ component {
     function run( boolean open = false ) {
         var directory = getCWD();
 
-        var configPath = "#directory#/.cfmigrations.json";
+        var configPath = "#directory#/.migrations.json";
 
-        // Check and see if a .cfmigrations.json file exists
+        // Check and see if a .migrations.json file exists
         if ( fileExists( configPath ) ) {
+            print.yellowLine( ".migrations.json already exists." );
+            return;
+        }
+
+        // Check and see if a .cfmigrations.json file exists (for backward compatibility)
+        var oldConfigPath = "#directory#/.cfmigrations.json";
+        if ( fileExists( oldConfigPath ) ) {
             print.yellowLine( ".cfmigrations.json already exists." );
             return;
         }
@@ -24,7 +31,7 @@ component {
 
         file action="write" file="#configPath#" mode="777" output="#trim( configStub )#";
 
-        print.greenLine( "Created .cfmigrations config file." );
+        print.greenLine( "Created .migrations config file." );
 
         // Open file?
         if ( arguments.open ) {

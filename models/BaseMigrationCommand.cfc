@@ -76,7 +76,15 @@ component {
 
         var directory = getCWD();
 
-        // Check and see if a .cfmigrations.json file exists
+        // Check and see if a .migrations.json file exists
+        if ( fileExists( "#directory#/.migrations.json" ) ) {
+            var cfmigrationsInfo = deserializeJSON( fileRead( "#directory#/.migrations.json" ) );
+            variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
+            cfmigrationsInfoType = "cfmigrations";
+            return cfmigrationsInfo;
+        }
+
+        // Check and see if a .cfmigrations.json file exists (for backward compatibility)
         if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
             var cfmigrationsInfo = deserializeJSON( fileRead( "#directory#/.cfmigrations.json" ) );
             variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
@@ -134,7 +142,12 @@ component {
     private string function getCFMigrationsType() {
         var directory = getCWD();
 
-        // Check and see if a .cfmigrations.json file exists
+        // Check and see if a .migrations.json file exists
+        if ( fileExists( "#directory#/.migrations.json" ) ) {
+            return "cfmigrations";
+        }
+
+        // Check and see if a .cfmigrations.json file exists (for backward compatibility)
         if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
             return "cfmigrations";
         }
