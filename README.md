@@ -9,7 +9,7 @@ v4 brings a new configuration structure and file.
 This pairs with new features in CFMigrations to allow for multiple named migration managers and new seeding capabilities.
 Migrations will still run in v4 using the old configuration structure and location, but it is highly recommended you upgrade.
 
-You can create the new `.cfmigrations.json` config file by running `migrate init`.
+You can create the new config file by running `migrate init`. The file can be named either `.migrations.json` or `.cfmigrations.json` (both are supported for backward compatibility).
 
 The new config file format mirrors `CFMigrations`:
 
@@ -84,7 +84,9 @@ Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDisc
 
 ## Setup
 
-You need to create a `.cfmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`:
+You need to create a config file in your application root folder. You can do this easily by running `migrate init`.
+
+The config file can be named either `.migrations.json` or `.cfmigrations.json` (both are supported for backward compatibility).
 
 ```json
 {
@@ -211,7 +213,8 @@ You would update your `.gitignore` file to not ignore the `.env.example` file:
 
 ### `migrate init`
 
-Creates the migration config file as `.cfmigrations.json`, if it doesn't already exist.
+Creates the migration config file as `.migrations.json`, if it doesn't already exist.
+(The older `.cfmigrations.json` name is also supported for backward compatibility.)
 
 ### `migrate install`
 
