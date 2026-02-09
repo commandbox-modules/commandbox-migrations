@@ -8,12 +8,12 @@
             "schema": "${DB_SCHEMA}",
             "migrationsTable": "cfmigrations",
             "connectionInfo": {
-                type: "${DB_DRIVER}",
-                database: "${DB_DATABASE}",
-                host: "${DB_HOST}",
-                port: ${DB_PORT},
-                username: "${DB_USER}",
-                password: "${DB_PASSWORD}"
+                "type": "${DB_DRIVER}",
+                "database": "${DB_DATABASE}",
+                "host": "${DB_HOST}",
+                "port": ${DB_PORT},
+                "username": "${DB_USER}",
+                "password": "${DB_PASSWORD}"
             }
         }
     }
