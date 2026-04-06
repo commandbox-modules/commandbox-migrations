@@ -238,6 +238,9 @@ instead print out the SQL that would have been run to the console.
 Passing a `file` is used in conjunction with the `--pretend` flag.
 If provided, the outputted sql will be saved to the file path provided.
 
+> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
+> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
+
 ### `migrate down [--once] [--verbose] [--pretend] [file]`
 
 Runs all available migrations down. Passing the `--once` flag will only
@@ -251,6 +254,9 @@ instead print out the SQL that would have been run to the console.
 
 Passing a `file` is used in conjunction with the `--pretend` flag.
 If provided, the outputted sql will be saved to the file path provided.
+
+> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
+> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
 
 ### `migrate refresh`
 
