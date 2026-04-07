@@ -11,8 +11,16 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
      * @manager.hint       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
      * @verbose.hint       If true, errors output a full stack trace.
+     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
      */
-    function run( string name = "", string manager = "default", boolean verbose = false ) {
+    function run(
+        string name = "",
+        string manager = "default",
+        boolean verbose = false,
+        boolean pretend = false,
+        string file
+    ) {
         setup( arguments.manager );
 
         if ( getCFMigrationsType() == "boxJSON" ) {
@@ -26,16 +34,29 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         pagePoolClear();
 
+        var statements = [];
         var currentlyRunningSeeder = "UNKNOWN";
         try {
             migrationService.seed(
                 seedName = arguments.name == "" ? nullValue() : arguments.name,
+                pretend = arguments.pretend,
                 preProcessHook = ( seeder ) => {
                     currentlyRunningSeeder = seeder;
                     print.yellow( "Seeding: " ).line( seeder ).toConsole();
                 },
-                postProcessHook = ( seeder ) => {
-                    print.green( "Seeded:  " ).line( seeder ).toConsole();
+                postProcessHook = ( seeder, qb ) => {
+                    if ( !pretend ) {
+                        print.green( "Seeded:  " ).line( seeder ).toConsole();
+                    } else {
+                        print.green( "Pretended to seed:  " ).line( seeder ).toConsole();
+                        print.line();
+                        for ( var q in qb.getQueryLog() ) {
+                            var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
+                            statements.append( inlineSql );
+                            print.line( inlineSql );
+                            print.line();
+                        }
+                    }
                 }
             );
         } catch ( any e ) {
@@ -65,6 +86,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         if ( currentlyRunningSeeder == "UNKNOWN" ) {
             print.line( "No seeders to run." );
+        }
+
+        if ( arguments.pretend && !isNull( arguments.file ) ) {
+            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="666" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
+            print.whiteOnBlueLine( "Wrote SQL to file: #arguments.file#" );
         }
     }
 

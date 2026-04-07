@@ -123,7 +123,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         if ( arguments.seed ) {
             print.line();
             command( "migrate seed run" )
-                .params( argumentCollection = { manager: arguments.manager, verbose: arguments.verbose } )
+                .params( argumentCollection = { manager: arguments.manager, verbose: arguments.verbose, pretend: arguments.pretend } )
                 .run();
         }
 
