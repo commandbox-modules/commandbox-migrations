@@ -6,7 +6,7 @@
         "properties": {
             "defaultGrammar": "AutoDiscover@qb",
             "schema": "${DB_SCHEMA}",
-            "migrationsTable": "cfmigrations",
+            "migrationsTable": "cbmigrations",
             "connectionInfo": {
                 "type": "${DB_DRIVER}",
                 "database": "${DB_DATABASE}",

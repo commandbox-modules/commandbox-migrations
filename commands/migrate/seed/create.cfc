@@ -14,30 +14,32 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
      * @open          Open the file once generated.
      * @boxlang       Create a .bx file instead of a .cfc. Defaults to auto-detection based on your server/box.json.
      */
-    function run( required string name, string manager = "default", boolean open = false, boolean boxlang ) {
-        setup( manager = arguments.manager, setupDatasource = false );
+    function run(
+        required string name,
+        string manager = "default",
+        boolean open = false,
+        boolean boxlang = isBoxLangProject( getCWD() )
+    ) {
+        setup( manager = arguments.manager, setupDatasource = false )
 
-        var seedsDirectory = expandPath( variables.migrationService.getSeedsDirectory() );
+        var seedsDirectory = expandPath( variables.migrationService.getSeedsDirectory() )
 
         // Validate seedsDirectory
         if ( !directoryExists( seedsDirectory ) ) {
-            directoryCreate( seedsDirectory );
+            directoryCreate( seedsDirectory )
         }
 
-        var useBoxLang = arguments.keyExists( "boxlang" ) ? arguments.boxlang : isBoxLangProject( getCWD() );
-        var extension = useBoxLang ? "bx" : "cfc";
-
-        var seedPath = "#seedsDirectory##arguments.name#.#extension#";
-
-        var seedContent = fileRead( "/commandbox-migrations/templates/seed.txt" );
+        var extension = arguments.boxlang ? "bx" : "cfc"
+        var seedPath = "#seedsDirectory##arguments.name#.#extension#"
+        var seedContent = fileRead( "/commandbox-migrations/templates/seed#arguments.boxlang ? "BX" : ""#.txt" )
 
         file action="write" file="#seedPath#" mode="777" output="#trim( seedContent )#";
 
-        print.greenLine( "Created #seedPath#" );
+        print.greenLine( "Created #seedPath#" )
 
         // Open file?
         if ( arguments.open ) {
-            openPath( seedPath );
+            openPath( seedPath )
         }
     }
 

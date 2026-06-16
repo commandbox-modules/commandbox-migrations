@@ -21,35 +21,31 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         required string name,
         string manager = "default",
         boolean open = false,
-        boolean boxlang
+        boolean boxlang = isBoxLangProject( getCWD() )
     ) {
-        setup( manager = arguments.manager, setupDatasource = false );
-
-        var migrationsDirectory = expandPath( variables.migrationService.getMigrationsDirectory() );
+        setup( manager = arguments.manager, setupDatasource = false )
+        var migrationsDirectory = expandPath( variables.migrationService.getMigrationsDirectory() )
 
         // Validate migrationsDirectory
         if ( !directoryExists( migrationsDirectory ) ) {
-            directoryCreate( migrationsDirectory );
+            directoryCreate( migrationsDirectory )
         }
 
-        var useBoxLang = arguments.keyExists( "boxlang" ) ? arguments.boxlang : isBoxLangProject( getCWD() );
-        var extension = useBoxLang ? "bx" : "cfc";
-
-        var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" );
-        var migrationPath = "#migrationsDirectory##timestamp#_#arguments.name#.#extension#";
-
-        var migrationContent = fileRead( "/commandbox-migrations/templates/Migration.txt" );
+        var extension = arguments.boxlang ? "bx" : "cfc"
+        var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" )
+        var migrationPath = "#migrationsDirectory##timestamp#_#arguments.name#.#extension#"
+        var migrationContent = fileRead( "/commandbox-migrations/templates/Migration#arguments.boxlang ? "BX" : ""#.txt" )
 
         file action="write" file="#migrationPath#" mode="777" output="#trim( migrationContent )#";
 
-        print.greenLine( "Created #migrationPath#" );
+        print.greenLine( "Created #migrationPath#" )
 
         // Open file?
         if ( arguments.open ) {
-            openPath( migrationPath );
+            openPath( migrationPath )
         }
 
-        return;
+        return
     }
 
 }

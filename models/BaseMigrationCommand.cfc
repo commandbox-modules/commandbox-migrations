@@ -114,23 +114,27 @@ component {
     /**
      * Detects whether the given directory should be treated as a BoxLang project,
      * based on the running CommandBox server's engine or box.json's `language` key.
+     *
+     * @directory The directory to check for box.json (usually the current working directory).
+     *
+     * @return True if this is a BoxLang project, false otherwise.
      */
     private boolean function isBoxLangProject( required string directory ) {
         // Detect if the running CommandBox server is BoxLang.
         var serverInfo = variables.serverService.resolveServerDetails( {} ).serverInfo;
         if ( serverInfo.keyExists( "cfengine" ) && serverInfo.cfengine contains "boxlang" ) {
-            return true;
+            return true
         }
 
         // Detect via box.json's language key.
         if ( packageService.isPackage( arguments.directory ) ) {
             var boxJSON = packageService.readPackageDescriptor( arguments.directory );
             if ( boxJSON.keyExists( "language" ) && boxJSON.language == "boxlang" ) {
-                return true;
+                return true
             }
         }
 
-        return false;
+        return false
     }
 
     /**
