@@ -2,9 +2,8 @@
  * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
  * www.ortussolutions.com
  * ---
- * Installs the cfmigrations table in to your database.
- *
- * The cfmigrations table keeps track of the migrations ran against your database.
+ * Installs the migrations table in to your database.
+ * The migrations table keeps track of the migrations ran against your database.
  * It must be installed before running any migrations.
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
@@ -18,7 +17,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         setup( arguments.manager );
 
         if ( verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
+            print.blackOnYellowLine( "cbmigrations info:" );
             print.line( getMigrationsInfo() ).line();
         }
 

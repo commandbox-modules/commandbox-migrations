@@ -14,14 +14,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
      * Make sure you are running this command in the root of your app.
      *
      * @open Open the config file after it is created.
-     * @boxlang Create a .bxmigrations.json file instead of .cfmigrations.json. Defaults to auto-detection based on your server/box.json.
      */
     function run(
-        boolean open = false,
-        boolean boxlang = isBoxLangProject( getCWD() )
+        boolean open = false
     ) {
         var directory = getCWD()
-        var configFileName = arguments.boxlang ? ".bxmigrations.json" : ".cfmigrations.json"
+        var configFileName = ".cbmigrations.json"
         var configPath = "#directory#/#configFileName#"
 
         // Check and see if the config file already exists

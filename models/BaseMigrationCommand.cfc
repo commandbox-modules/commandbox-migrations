@@ -56,9 +56,9 @@ component {
      * Registers an on-the-fly application datasource from the given connection info
      * and sets it as the application default, returning the datasource name.
      */
-    function installDatasource( required struct connectionInfo, string datasourceName = "cfmigrations" ) {
+    function installDatasource( required struct connectionInfo, string datasourceName = "cbmigrations" ) {
         var datasources = getApplicationSettings().datasources ?: {};
-        datasources[ "cfmigrations" ] = arguments.connectionInfo;
+        datasources[ "cbmigrations" ] = arguments.connectionInfo;
         application action='update' datasources=datasources;
         application action='update' datasource='#arguments.datasourceName#';
         return arguments.datasourceName;
@@ -98,16 +98,30 @@ component {
 
     /**
      * Returns the path to the first migrations config file found in the given directory,
-     * checking `.bxmigrations.json` before `.cfmigrations.json`, or "" if neither exists.
+     * checking `.cbmigrations.json` before `.cfmigrations.json`. If only
+     * `.cfmigrations.json` exists, the user is prompted to rename it to the new
+     * `.cbmigrations.json` name.
      */
     private string function findMigrationsConfigPath( required string directory ) {
-        var candidates = [ ".bxmigrations.json", ".cfmigrations.json" ];
-        for ( var candidate in candidates ) {
-            var path = "#arguments.directory#/#candidate#";
-            if ( fileExists( path ) ) {
-                return path;
-            }
+        // Check for the modern config file first
+        var cbmigrationsPath = "#arguments.directory#/.cbmigrations.json";
+        if ( fileExists( cbmigrationsPath ) ) {
+            return cbmigrationsPath;
         }
+
+        // Check for the legacy config file
+        var cfmigrationsPath = "#arguments.directory#/.cfmigrations.json";
+        if ( fileExists( cfmigrationsPath ) ) {
+            print.boldYellowLine( "The config file .cfmigrations.json has been renamed to .cbmigrations.json in this new version of Migrations" );
+            if ( confirm( "Would you like me to rename it for you? [y/n]" ) ) {
+                fileMove( cfmigrationsPath, cbmigrationsPath );
+                print.greenLine( "Renamed .cfmigrations.json to .cbmigrations.json." );
+                return cbmigrationsPath;
+            }
+            print.line( "Continuing with .cfmigrations.json, but consider renaming it manually." );
+            return cfmigrationsPath;
+        }
+
         return "";
     }
 
@@ -138,16 +152,15 @@ component {
     }
 
     /**
-     * Loads the migrations config: from `.bxmigrations.json`/`.cfmigrations.json` if present,
+     * Loads the migrations config: from `.cbmigrations.json`/`.cfmigrations.json` if present,
      * otherwise falls back to the deprecated `cfmigrations` key in box.json (auto-converting
      * the legacy pre-v4 format if needed).
      */
     private struct function getMigrationsInfo() {
         var migrationsInfoType = "boxJSON";
-
         var directory = getCWD();
 
-        // Check and see if a .bxmigrations.json or .cfmigrations.json file exists
+        // Check and see if a .cbmigrations.json or .cfmigrations.json file exists
         var configPath = findMigrationsConfigPath( directory );
         if ( len( configPath ) ) {
             var migrationsInfo = deserializeJSON( fileRead( configPath ) );
@@ -204,15 +217,15 @@ component {
     }
 
     /**
-     * Returns "cfmigrations" if a dedicated config file or v4-style box.json config is found,
+     * Returns "cbmigrations" if a dedicated config file or v4-style box.json config is found,
      * or "boxJSON" if only the legacy pre-v4 box.json format is present.
      */
     private string function getMigrationsConfigType() {
         var directory = getCWD();
 
-        // Check and see if a .bxmigrations.json or .cfmigrations.json file exists
+        // Check and see if a .cbmigrations.json or .cbmigrations.json file exists
         if ( len( findMigrationsConfigPath( directory ) ) ) {
-            return "cfmigrations";
+            return "cbmigrations";
         }
 
         // Check and see if box.json exists
@@ -224,7 +237,7 @@ component {
         var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
 
         if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
-            return "cfmigrations";
+            return "cbmigrations";
         }
 
         return "boxJSON";
@@ -247,7 +260,7 @@ component {
     /**
      * Returns true if `word` starts with `substring` (or `substring` is empty).
      */
-    private string function startsWith( required string word, required string substring ) {
+    private boolean function startsWith( required string word, required string substring ) {
         if ( len( arguments.substring ) == 0 ) {
             return true;
         }

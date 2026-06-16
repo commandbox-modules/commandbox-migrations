@@ -23,7 +23,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         if ( arguments.verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
+            print.blackOnYellowLine( "cbmigrations info:" );
             print.line( getMigrationsInfo() ).line();
         }
 
@@ -42,7 +42,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 }
             );
         } catch ( any e ) {
-            if ( verbose ) {
+            if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "Error when trying to seed #currentlyRunningSeeder#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
