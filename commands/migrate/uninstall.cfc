@@ -17,7 +17,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         if ( arguments.verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.line( getMigrationsInfo() ).line();
         }
 
         pagePoolClear();

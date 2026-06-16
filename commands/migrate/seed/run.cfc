@@ -15,13 +15,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
     function run( string name = "", string manager = "default", boolean verbose = false ) {
         setup( arguments.manager );
 
-        if ( getCFMigrationsType() == "boxJSON" ) {
+        if ( getMigrationsConfigType() == "boxJSON" ) {
             error( "Seeders can only be ran after migrating to the new v4 migrations configuration." );
         }
 
         if ( arguments.verbose ) {
             print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.line( getMigrationsInfo() ).line();
         }
 
         pagePoolClear();
@@ -71,7 +71,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
     function completeSeedNames( string paramSoFar, struct passedNamedParameters ) {
         param passedNamedParameters.manager = "default";
         setup( passedNamedParameters.manager );
-        if ( getCFMigrationsType() == "boxJSON" ) {
+        if ( getMigrationsConfigType() == "boxJSON" ) {
             return [];
         }
         return variables.migrationService.findSeeds()

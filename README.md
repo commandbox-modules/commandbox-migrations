@@ -11,6 +11,11 @@ Migrations will still run in v4 using the old configuration structure and locati
 
 You can create the new `.cfmigrations.json` config file by running `migrate init`.
 
+> If your project is a [BoxLang](https://boxlang.io) project, the config file will be named
+> `.bxmigrations.json` instead. `.bxmigrations.json` is always checked first if both files exist.
+> BoxLang detection is automatic (based on a running BoxLang server or a `"language": "boxlang"`
+> entry in your `box.json`), or you can force it with `migrate init --boxlang` / `--no-boxlang`.
+
 The new config file format mirrors `CFMigrations`:
 
 ```json
@@ -209,20 +214,24 @@ You would update your `.gitignore` file to not ignore the `.env.example` file:
 
 ## Usage
 
-### `migrate init`
+### `migrate init [--boxlang] [--no-boxlang]`
 
-Creates the migration config file as `.cfmigrations.json`, if it doesn't already exist.
+Creates the migration config file, if it doesn't already exist. Creates
+`.cfmigrations.json` by default, or `.bxmigrations.json` for BoxLang
+projects. Pass `--boxlang`/`--no-boxlang` to override auto-detection.
 
 ### `migrate install`
 
 Installs the migration table in to your database.
 This migration table keeps track of the ran migrations.
 
-### `migrate create [name]`
+### `migrate create [name] [--boxlang] [--no-boxlang]`
 
 Creates a migration file with an `up` and `down` method.
 The file name will be prepended with the current timestamp
-in the format that `cfmigrations` expects.
+in the format that `cfmigrations` expects. Creates a `.cfc` file by
+default, or a `.bx` file for BoxLang projects (auto-detected, or
+overridden with `--boxlang`/`--no-boxlang`).
 
 ### `migrate up [--once] [--verbose] [--pretend] [file]`
 
@@ -276,9 +285,11 @@ a fresh copy of your migrated database.
 
 Removes the `cfmigrations` table after running down any ran migrations.
 
-### `migrate seed create [name]`
+### `migrate seed create [name] [--boxlang] [--no-boxlang]`
 
-Creates a new Seeder file.
+Creates a new Seeder file. Creates a `.cfc` file by default, or a `.bx`
+file for BoxLang projects (auto-detected, or overridden with
+`--boxlang`/`--no-boxlang`).
 
 ### `migrate seed run`
 

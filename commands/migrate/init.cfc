@@ -4,19 +4,21 @@
  *
  * This will ensure the correct values are set in your box.json.
  */
-component {
+component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
-    property name="packageService" inject="PackageService";
-    property name="JSONService" inject="JSONService";
-
-    function run( boolean open = false ) {
+    /**
+     * @boxlang.hint Create a .bxmigrations.json file instead of .cfmigrations.json. Defaults to auto-detection based on your server/box.json.
+     */
+    function run( boolean open = false, boolean boxlang ) {
         var directory = getCWD();
 
-        var configPath = "#directory#/.cfmigrations.json";
+        var useBoxLang = arguments.keyExists( "boxlang" ) ? arguments.boxlang : isBoxLangProject( directory );
+        var configFileName = useBoxLang ? ".bxmigrations.json" : ".cfmigrations.json";
+        var configPath = "#directory#/#configFileName#";
 
-        // Check and see if a .cfmigrations.json file exists
+        // Check and see if the config file already exists
         if ( fileExists( configPath ) ) {
-            print.yellowLine( ".cfmigrations.json already exists." );
+            print.yellowLine( "#configFileName# already exists." );
             return;
         }
 
@@ -24,7 +26,7 @@ component {
 
         file action="write" file="#configPath#" mode="777" output="#trim( configStub )#";
 
-        print.greenLine( "Created .cfmigrations config file." );
+        print.greenLine( "Created #configFileName# config file." );
 
         // Open file?
         if ( arguments.open ) {

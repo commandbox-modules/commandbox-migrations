@@ -6,9 +6,10 @@ component {
     property name="sqlHighlighter" inject="sqlHighlighter";
 	property name="systemSettings" inject="SystemSettings";
     property name="sqlFormatter" inject="Formatter@sqlFormatter";
+    property name="serverService" inject="ServerService";
 
     function setup( required string manager, boolean setupDatasource = true ) {
-        var config = getCFMigrationsInfo();
+        var config = getMigrationsInfo();
         if ( !config.keyExists( arguments.manager ) ) {
             error( "No manager found named [#arguments.manager#]. Available managers are: #config.keyList( ", " )#" );
         }
@@ -71,17 +72,47 @@ component {
         }
     }
 
-    private struct function getCFMigrationsInfo() {
-        var cfmigrationsInfoType = "boxJSON";
+    private string function findMigrationsConfigPath( required string directory ) {
+        var candidates = [ ".bxmigrations.json", ".cfmigrations.json" ];
+        for ( var candidate in candidates ) {
+            var path = "#arguments.directory#/#candidate#";
+            if ( fileExists( path ) ) {
+                return path;
+            }
+        }
+        return "";
+    }
+
+    private boolean function isBoxLangProject( required string directory ) {
+        // Detect if the running CommandBox server is BoxLang.
+        var serverInfo = variables.serverService.resolveServerDetails( {} ).serverInfo;
+        if ( serverInfo.keyExists( "cfengine" ) && serverInfo.cfengine contains "boxlang" ) {
+            return true;
+        }
+
+        // Detect via box.json's language key.
+        if ( packageService.isPackage( arguments.directory ) ) {
+            var boxJSON = packageService.readPackageDescriptor( arguments.directory );
+            if ( boxJSON.keyExists( "language" ) && boxJSON.language == "boxlang" ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private struct function getMigrationsInfo() {
+        var migrationsInfoType = "boxJSON";
 
         var directory = getCWD();
 
-        // Check and see if a .cfmigrations.json file exists
-        if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
-            var cfmigrationsInfo = deserializeJSON( fileRead( "#directory#/.cfmigrations.json" ) );
-            variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
-            cfmigrationsInfoType = "cfmigrations";
-            return cfmigrationsInfo;
+        // Check and see if a .bxmigrations.json or .cfmigrations.json file exists
+        var configPath = findMigrationsConfigPath( directory );
+        if ( len( configPath ) ) {
+            var migrationsInfo = deserializeJSON( fileRead( configPath ) );
+            variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
+            migrationsInfoType = "cfmigrations";
+            return migrationsInfo;
         }
 
         // Check and see if box.json exists
@@ -97,10 +128,10 @@ component {
         var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
 
         if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
-            var cfmigrationsInfo = boxJSONMigrationsInfo;
-            variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
-            cfmigrationsInfoType = "cfmigrations";
-            return cfmigrationsInfo;
+            var migrationsInfo = boxJSONMigrationsInfo;
+            variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
+            migrationsInfoType = "cfmigrations";
+            return migrationsInfo;
         }
 
         print.boldUnderscoredYellowLine( "The format of the migrations configuration has changed in v4." );
@@ -119,7 +150,7 @@ component {
             properties[ "schema" ] = boxJSONMigrationsInfo.schema;
         }
 
-        var cfmigrationsInfo = {
+        var migrationsInfo = {
             "default": {
                 "manager": "cfmigrations.models.QBMigrationManager",
                 "migrationsDirectory": boxJSONMigrationsInfo.migrationsDirectory,
@@ -127,15 +158,15 @@ component {
             }
         };
 
-        variables.systemSettings.expandDeepSystemSettings( cfmigrationsInfo );
-        return cfmigrationsInfo;
+        variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
+        return migrationsInfo;
     }
 
-    private string function getCFMigrationsType() {
+    private string function getMigrationsConfigType() {
         var directory = getCWD();
 
-        // Check and see if a .cfmigrations.json file exists
-        if ( fileExists( "#directory#/.cfmigrations.json" ) ) {
+        // Check and see if a .bxmigrations.json or .cfmigrations.json file exists
+        if ( len( findMigrationsConfigPath( directory ) ) ) {
             return "cfmigrations";
         }
 
@@ -155,11 +186,11 @@ component {
     }
 
     function completeManagers( string paramSoFar ) {
-        var type = getCFMigrationsType();
+        var type = getMigrationsConfigType();
         if ( type == "boxJSON" ) {
             return [];
         }
-        return getCFMigrationsInfo().keyArray()
+        return getMigrationsInfo().keyArray()
             .filter( ( manager ) => startsWith( manager, paramSoFar ) )
             .map( ( manager ) => ( { "name": manager, "group": "Managers" } ) );
     }
