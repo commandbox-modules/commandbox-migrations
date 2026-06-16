@@ -68,6 +68,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
     }
 
+    /**
+     * Tab-completion options for the `name` argument, listing seed file names for
+     * the passed manager that start with what's been typed so far.
+     */
     function completeSeedNames( string paramSoFar, struct passedNamedParameters ) {
         param passedNamedParameters.manager = "default";
         setup( passedNamedParameters.manager );

@@ -8,6 +8,10 @@ component {
     property name="sqlFormatter" inject="Formatter@sqlFormatter";
     property name="serverService" inject="ServerService";
 
+    /**
+     * Resolves the named manager's settings from the migrations config and
+     * initializes `variables.migrationService` from them.
+     */
     function setup( required string manager, boolean setupDatasource = true ) {
         var config = getMigrationsInfo();
         if ( !config.keyExists( arguments.manager ) ) {
@@ -43,6 +47,10 @@ component {
         );
     }
 
+    /**
+     * Registers an on-the-fly application datasource from the given connection info
+     * and sets it as the application default, returning the datasource name.
+     */
     function installDatasource( required struct connectionInfo, string datasourceName = "cfmigrations" ) {
         var datasources = getApplicationSettings().datasources ?: {};
         datasources[ "cfmigrations" ] = arguments.connectionInfo;
@@ -51,6 +59,10 @@ component {
         return arguments.datasourceName;
     }
 
+    /**
+     * Updates the migration service's migrations directory to the given path,
+     * resolved and made relative to the current working directory.
+     */
     public void function setMigrationPath( required migrationsDirectory ) {
         var relativePath = fileSystemUtil.makePathRelative(
             fileSystemUtil.resolvePath( migrationsDirectory )
@@ -58,10 +70,17 @@ component {
         migrationService.setMigrationsDirectory( relativePath );
     }
 
+    /**
+     * Returns the migration service's currently configured migrations directory.
+     */
     public string function getMigrationPath () {
         return migrationService.getMigrationsDirectory();
     }
 
+    /**
+     * Prompts the user to install the migration table if it hasn't been installed yet,
+     * aborting the command if they decline.
+     */
     private void function checkForInstalledMigrationTable() {
         if ( ! variables.migrationService.isReady() ) {
             if ( confirm( "Migration table not installed.  Do you want to install it now? [y\n]" ) ) {
@@ -72,6 +91,10 @@ component {
         }
     }
 
+    /**
+     * Returns the path to the first migrations config file found in the given directory,
+     * checking `.bxmigrations.json` before `.cfmigrations.json`, or "" if neither exists.
+     */
     private string function findMigrationsConfigPath( required string directory ) {
         var candidates = [ ".bxmigrations.json", ".cfmigrations.json" ];
         for ( var candidate in candidates ) {
@@ -83,6 +106,10 @@ component {
         return "";
     }
 
+    /**
+     * Detects whether the given directory should be treated as a BoxLang project,
+     * based on the running CommandBox server's engine or box.json's `language` key.
+     */
     private boolean function isBoxLangProject( required string directory ) {
         // Detect if the running CommandBox server is BoxLang.
         var serverInfo = variables.serverService.resolveServerDetails( {} ).serverInfo;
@@ -101,6 +128,11 @@ component {
         return false;
     }
 
+    /**
+     * Loads the migrations config: from `.bxmigrations.json`/`.cfmigrations.json` if present,
+     * otherwise falls back to the deprecated `cfmigrations` key in box.json (auto-converting
+     * the legacy pre-v4 format if needed).
+     */
     private struct function getMigrationsInfo() {
         var migrationsInfoType = "boxJSON";
 
@@ -162,6 +194,10 @@ component {
         return migrationsInfo;
     }
 
+    /**
+     * Returns "cfmigrations" if a dedicated config file or v4-style box.json config is found,
+     * or "boxJSON" if only the legacy pre-v4 box.json format is present.
+     */
     private string function getMigrationsConfigType() {
         var directory = getCWD();
 
@@ -185,6 +221,10 @@ component {
         return "boxJSON";
     }
 
+    /**
+     * Tab-completion options for the `manager` argument, listing configured manager
+     * names that start with what's been typed so far.
+     */
     function completeManagers( string paramSoFar ) {
         var type = getMigrationsConfigType();
         if ( type == "boxJSON" ) {
@@ -195,6 +235,9 @@ component {
             .map( ( manager ) => ( { "name": manager, "group": "Managers" } ) );
     }
 
+    /**
+     * Returns true if `word` starts with `substring` (or `substring` is empty).
+     */
     private string function startsWith( required string word, required string substring ) {
         if ( len( arguments.substring ) == 0 ) {
             return true;

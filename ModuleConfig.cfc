@@ -2,6 +2,10 @@ component {
 
     this.dependencies = [ "cfmigrations", "sqlFormatter" ];
 
+    /**
+     * Module lifecycle method. Registers the SqlHighlighter singleton, falling back
+     * to a no-op highlighter if the jLine SyntaxHighlighter can't be built.
+     */
     function configure() {
         var sqlHighlighter = {
             "highlight": ( str ) => ( {
