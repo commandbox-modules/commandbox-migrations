@@ -91,6 +91,10 @@ Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDisc
 
 You need to create a `.cfmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`:
 
+> If your project is a [BoxLang](https://boxlang.io) project, `migrate init` will create
+> `.bxmigrations.json` instead, and it will be checked first if both files happen to exist.
+> See [BoxLang Support](#boxlang-support) below for details on detection and overrides.
+
 ```json
 {
     "default": {
@@ -211,6 +215,23 @@ You would update your `.gitignore` file to not ignore the `.env.example` file:
 .env
 !.env.example
 ```
+
+## BoxLang Support
+
+`commandbox-migrations` supports [BoxLang](https://boxlang.io) projects:
+
+- Config file: `migrate init` writes `.bxmigrations.json` instead of `.cfmigrations.json`.
+  If both files exist, `.bxmigrations.json` is read first.
+- Migration/seed files: `migrate create` and `migrate seed create` scaffold `.bx` files
+  instead of `.cfc` files.
+
+Whether a project is treated as BoxLang is auto-detected by checking, in order:
+
+1. Whether the running CommandBox server's engine is BoxLang.
+2. Whether `box.json` has `"language": "boxlang"`.
+
+You can skip auto-detection and force the behavior on any of `migrate init`,
+`migrate create`, and `migrate seed create` with the `--boxlang` / `--no-boxlang` flags.
 
 ## Usage
 
