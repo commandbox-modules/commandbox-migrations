@@ -3,3 +3,7 @@ TASKS.md
 jmimemagic.log
 
 .vscode
+
+## AI
+.opencode/**
+.agents/skills/**
