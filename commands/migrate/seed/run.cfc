@@ -1,4 +1,7 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Runs one or all seeders for an application against your database.
  * Seeders have no concept of being ran.
  * Running a seeder multiple times will insert data multiple times.
@@ -6,11 +9,11 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @name.hint          The name of a seed to run. Runs all seeds if left blank.
+     * @name          The name of a seed to run. Runs all seeds if left blank.
      * @name.optionsUDF    completeSeedNames
-     * @manager.hint       The Migration Manager to use.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
+     * @verbose       If true, errors output a full stack trace.
      */
     function run( string name = "", string manager = "default", boolean verbose = false ) {
         setup( arguments.manager );

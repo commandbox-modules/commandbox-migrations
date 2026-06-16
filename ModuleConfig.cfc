@@ -1,4 +1,9 @@
-component {
+/**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
+ */
+ component {
 
     this.dependencies = [ "cfmigrations", "sqlFormatter" ];
 

@@ -1,4 +1,7 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Initialize your project to use commandbox-migrations
  * Make sure you are running this command in the root of your app.
  *
@@ -7,7 +10,7 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @boxlang.hint Create a .bxmigrations.json file instead of .cfmigrations.json. Defaults to auto-detection based on your server/box.json.
+     * @boxlang Create a .bxmigrations.json file instead of .cfmigrations.json. Defaults to auto-detection based on your server/box.json.
      */
     function run( boolean open = false, boolean boxlang ) {
         var directory = getCWD();

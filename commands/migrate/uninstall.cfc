@@ -1,4 +1,7 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Uninstalls the cfmigrations table from your database.
  *
  * The cfmigrations table keeps track of the migrations ran against your database.
@@ -7,10 +10,10 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @force.hint         If true, will not wait for confirmation to uninstall cfmigrations.
+     * @verbose       If true, errors output a full stack trace.
+     * @force         If true, will not wait for confirmation to uninstall cfmigrations.
      */
     function run( string manager = "default", boolean verbose = false, boolean force = false ) {
         setup( arguments.manager );

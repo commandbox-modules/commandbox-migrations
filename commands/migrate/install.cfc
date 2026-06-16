@@ -1,4 +1,7 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Installs the cfmigrations table in to your database.
  *
  * The cfmigrations table keeps track of the migrations ran against your database.
@@ -7,9 +10,9 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors will output a full stack trace.
+     * @verbose       If true, errors will output a full stack trace.
      */
     function run( string manager = "default", boolean verbose = false ) {
         setup( arguments.manager );

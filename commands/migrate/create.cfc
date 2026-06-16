@@ -1,4 +1,7 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Create a new migration CFC in an existing application.
  * Make sure you are running this command in the root of your app.
  *
@@ -8,13 +11,18 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @name.hint          Name of the migration to create without the extension.
-     * @manager.hint       The Migration Manager to use.
+     * @name          Name of the migration to create without the extension.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @open.hint          Open the file once generated.
-     * @boxlang.hint       Create a .bx file instead of a .cfc. Defaults to auto-detection based on your server/box.json.
+     * @open          Open the file once generated.
+     * @boxlang       Create a .bx file instead of a .cfc. Defaults to auto-detection based on your server/box.json.
      */
-    function run( required string name, string manager = "default", boolean open = false, boolean boxlang ) {
+    function run(
+        required string name,
+        string manager = "default",
+        boolean open = false,
+        boolean boxlang
+    ) {
         setup( manager = arguments.manager, setupDatasource = false );
 
         var migrationsDirectory = expandPath( variables.migrationService.getMigrationsDirectory() );

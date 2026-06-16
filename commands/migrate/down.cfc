@@ -1,15 +1,18 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Rollback one or all of the migrations already ran against your database.
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @once.hint          Only rollback a single migration.
-     * @manager.hint       The Migration Manager to use.
+     * @once          Only rollback a single migration.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @verbose       If true, errors output a full stack trace.
+     * @pretend       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
      */
     function run(
         boolean once = false,

@@ -4,9 +4,9 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
+     * @verbose       If true, errors output a full stack trace.
      */
     function run( string manager = "default", boolean verbose = false ) {
         setup( arguments.manager );

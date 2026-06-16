@@ -1,16 +1,19 @@
 /**
+ * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
  * Apply one or all pending migrations against your database.
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager       The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @seed.hint          If true, runs all seeders for the manager after creating a fresh database.
-     * @once.hint          Only apply a single migration.
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @seed          If true, runs all seeders for the manager after creating a fresh database.
+     * @once          Only apply a single migration.
+     * @verbose       If true, errors output a full stack trace.
+     * @pretend       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
      */
     function run(
         string manager = "default",
