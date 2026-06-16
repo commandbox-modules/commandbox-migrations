@@ -235,46 +235,43 @@ You can skip auto-detection and force the behavior on any of `migrate init`,
 
 ## Usage
 
-### `migrate init [--boxlang] [--no-boxlang]`
+Every command below accepts an optional `manager` argument (defaulting to `default`)
+to target a specific named manager from your config file. See
+[Upgrading to v4.0.0?](#upgrading-to-v400) above for how to define multiple managers.
+
+### `migrate init [--open] [--boxlang] [--no-boxlang]`
 
 Creates the migration config file, if it doesn't already exist. Creates
 `.cfmigrations.json` by default, or `.bxmigrations.json` for BoxLang
 projects. Pass `--boxlang`/`--no-boxlang` to override auto-detection.
 
-### `migrate install`
+Passing `--open` opens the config file once it's created.
 
-Installs the migration table in to your database.
+### `migrate install [manager] [--verbose]`
+
+Installs the migration table for the given manager in to your database.
 This migration table keeps track of the ran migrations.
 
-### `migrate create [name] [--boxlang] [--no-boxlang]`
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
 
-Creates a migration file with an `up` and `down` method.
+### `migrate create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
+
+Creates a migration file with an `up` and `down` method for the given manager.
 The file name will be prepended with the current timestamp
 in the format that `cfmigrations` expects. Creates a `.cfc` file by
 default, or a `.bx` file for BoxLang projects (auto-detected, or
 overridden with `--boxlang`/`--no-boxlang`).
 
-### `migrate up [--once] [--verbose] [--pretend] [file]`
+Passing `--open` opens the migration file once it's created.
 
-Runs all available migrations up. Passing the `--once` flag will only
-run a single migration up (if any are available).
+### `migrate up [manager] [--seed] [--once] [--verbose] [--pretend] [file]`
 
-Passing the `--verbose` flag with show the datasource information passed
-as well as the full stack trace of any errors.
+Runs all available migrations up for the given manager. Passing the `--once`
+flag will only run a single migration up (if any are available).
 
-Passing the `--pretend` flag will not actually run the migrations but
-instead print out the SQL that would have been run to the console.
-
-Passing a `file` is used in conjunction with the `--pretend` flag.
-If provided, the outputted sql will be saved to the file path provided.
-
-> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
-> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
-
-### `migrate down [--once] [--verbose] [--pretend] [file]`
-
-Runs all available migrations down. Passing the `--once` flag will only
-run a single migration down (if any are available).
+Passing the `--seed` flag will run all seeders for the manager after the
+migrations are applied (equivalent to running `migrate seed run` afterward).
 
 Passing the `--verbose` flag with show the datasource information passed
 as well as the full stack trace of any errors.
@@ -288,30 +285,65 @@ If provided, the outputted sql will be saved to the file path provided.
 > **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
 > Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
 
-### `migrate refresh`
+### `migrate down [manager] [--once] [--verbose] [--pretend] [file]`
 
-Runs all available migrations down and then runs all migrations up.
+Runs all available migrations down for the given manager. Passing the
+`--once` flag will only run a single migration down (if any are available).
 
-### `migrate reset`
+Passing the `--verbose` flag with show the datasource information passed
+as well as the full stack trace of any errors.
 
-Clears out all objects from the database, including the `cfmigrations` table.
-Use this when your database is in an inconsistent state in development.
+Passing the `--pretend` flag will not actually run the migrations but
+instead print out the SQL that would have been run to the console.
 
-### `migrate fresh`
+Passing a `file` is used in conjunction with the `--pretend` flag.
+If provided, the outputted sql will be saved to the file path provided.
 
-Runs `migrate reset`, `migrate install`, and `migrate up` to give you
-a fresh copy of your migrated database.
+> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
+> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
 
-### `migrate uninstall`
+### `migrate refresh [manager] [--seed] [--verbose]`
 
-Removes the `cfmigrations` table after running down any ran migrations.
+Runs all available migrations down and then runs all migrations up for the
+given manager (delegates to `migrate down` and `migrate up`, forwarding
+`manager`, `--seed`, and `--verbose`).
 
-### `migrate seed create [name] [--boxlang] [--no-boxlang]`
+### `migrate reset [manager] [--verbose]`
 
-Creates a new Seeder file. Creates a `.cfc` file by default, or a `.bx`
-file for BoxLang projects (auto-detected, or overridden with
-`--boxlang`/`--no-boxlang`).
+Clears out all objects from the database, including the `cfmigrations` table,
+for the given manager. Use this when your database is in an inconsistent
+state in development.
 
-### `migrate seed run`
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
 
-Runs one or all Seeders.
+### `migrate fresh [manager] [--seed] [--verbose]`
+
+Runs `migrate reset`, `migrate install`, and `migrate up` (forwarding
+`manager`, `--seed`, and `--verbose`) to give you a fresh copy of your
+migrated database.
+
+### `migrate uninstall [manager] [--verbose] [--force]`
+
+Removes the `cfmigrations` table for the given manager after running down
+any ran migrations. Prompts for confirmation before uninstalling unless
+`--force` is passed.
+
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
+
+### `migrate seed create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
+
+Creates a new Seeder file for the given manager. Creates a `.cfc` file by
+default, or a `.bx` file for BoxLang projects (auto-detected, or
+overridden with `--boxlang`/`--no-boxlang`).
+
+Passing `--open` opens the seeder file once it's created.
+
+### `migrate seed run [name] [manager] [--verbose]`
+
+Runs one or all Seeders for the given manager. Pass `name` to only run a
+single named seeder; omit it to run all seeders.
+
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
