@@ -27,7 +27,7 @@ component {
 
 		var tb = new testbox.system.TestBox(
 			directory = { "mapping" : "tests.specs", "recurse" : false },
-			reporter  = "console"
+			reporter  = "text"
 		)
 
 		print.line( tb.run() ).toConsole()
