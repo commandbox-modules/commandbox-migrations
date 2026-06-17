@@ -1,4 +1,6 @@
 /modules/
+/testbox/
+.test-tmp/
 TASKS.md
 jmimemagic.log
 

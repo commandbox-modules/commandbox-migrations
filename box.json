@@ -23,7 +23,8 @@
     "scripts":{
         "onRelease":"publish",
         "postPublish":"!git push && git push --tags",
-        "format":"cfformat run commands/**/*.cfc,ModuleConfig.cfc --overwrite"
+        "format":"cfformat run commands/**/*.cfc,ModuleConfig.cfc --overwrite",
+        "test":"task run taskFile=tests/Runner.cfc"
     },
     "private":false,
     "license":[
@@ -36,8 +37,12 @@
         "cfmigrations":"^5.1.0",
         "sqlformatter":"^1.1.3+31"
     },
+    "devDependencies":{
+        "testbox":"*"
+    },
     "installPaths":{
         "cfmigrations":"modules/cfmigrations/",
-        "sqlformatter":"modules/sqlformatter/"
+        "sqlformatter":"modules/sqlformatter/",
+        "testbox":"testbox/"
     }
 }

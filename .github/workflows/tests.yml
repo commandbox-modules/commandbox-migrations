@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+      - development
+      - "feature/**"
+      - "bugfix/**"
+      - "hotfix/**"
+      - "release/**"
+      - "claude/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: TestBox Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup CommandBox
+        uses: ortus-boxlang/setup-boxlang@main
+        with:
+            with-commandbox: true
+
+      - name: Install dependencies
+        run: box install
+
+      - name: Run tests
+        run: box run-script test

@@ -1,0 +1,19 @@
+{
+    "default": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "connectionInfo": {
+                "type": "mysql",
+                "database": "testdb",
+                "host": "127.0.0.1",
+                "port": 3306,
+                "username": "root",
+                "password": "",
+                "class": "com.mysql.cj.jdbc.Driver"
+            }
+        }
+    }
+}

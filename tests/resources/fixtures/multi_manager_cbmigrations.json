@@ -1,0 +1,34 @@
+{
+    "default": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/migrations/",
+        "seedsDirectory": "resources/database/seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "connectionInfo": {
+                "type": "mysql",
+                "database": "primarydb",
+                "host": "127.0.0.1",
+                "port": 3306,
+                "username": "root",
+                "password": ""
+            }
+        }
+    },
+    "secondary": {
+        "manager": "cfmigrations.models.QBMigrationManager",
+        "migrationsDirectory": "resources/database/secondary-migrations/",
+        "seedsDirectory": "resources/database/secondary-seeds/",
+        "properties": {
+            "defaultGrammar": "AutoDiscover@qb",
+            "connectionInfo": {
+                "type": "postgresql",
+                "database": "secondarydb",
+                "host": "127.0.0.1",
+                "port": 5432,
+                "username": "postgres",
+                "password": ""
+            }
+        }
+    }
+}
