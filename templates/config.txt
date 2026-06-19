@@ -11,9 +11,11 @@
                 "type": "${DB_DRIVER}",
                 "database": "${DB_DATABASE}",
                 "host": "${DB_HOST}",
-                "port": ${DB_PORT},
+                "port": "${DB_PORT}",
                 "username": "${DB_USER}",
-                "password": "${DB_PASSWORD}"
+                "password": "${DB_PASSWORD}",
+                "bundleName": "${DB_BUNDLENAME}",
+                "bundleVersion": "${DB_BUNDLEVERSION}"
             }
         }
     }

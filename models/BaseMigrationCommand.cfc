@@ -104,25 +104,18 @@ component {
      */
     private string function findMigrationsConfigPath( required string directory ) {
         // Check for the modern config file first
-        var cbmigrationsPath = "#arguments.directory#/.cbmigrations.json";
+        var cbmigrationsPath = "#arguments.directory#/.cbmigrations.json"
         if ( fileExists( cbmigrationsPath ) ) {
-            return cbmigrationsPath;
+            return cbmigrationsPath
         }
 
         // Check for the legacy config file
-        var cfmigrationsPath = "#arguments.directory#/.cfmigrations.json";
+        var cfmigrationsPath = "#arguments.directory#/.cfmigrations.json"
         if ( fileExists( cfmigrationsPath ) ) {
-            print.boldYellowLine( "The config file .cfmigrations.json has been renamed to .cbmigrations.json in this new version of Migrations" );
-            if ( confirm( "Would you like me to rename it for you? [y/n]" ) ) {
-                fileMove( cfmigrationsPath, cbmigrationsPath );
-                print.greenLine( "Renamed .cfmigrations.json to .cbmigrations.json." );
-                return cbmigrationsPath;
-            }
-            print.line( "Continuing with .cfmigrations.json, but consider renaming it manually." );
-            return cfmigrationsPath;
+            return cfmigrationsPath
         }
 
-        return "";
+        return ""
     }
 
     /**
