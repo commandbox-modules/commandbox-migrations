@@ -1,10 +1,23 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
- * Installs the migrations table in to your database.
- * The migrations table keeps track of the migrations ran against your database.
- * It must be installed before running any migrations.
+ * Install the migrations tracking table into your database.
+ *
+ * The migrations table records every migration that has been applied, allowing
+ * cbmigrations to know which migrations are pending and which have been run.
+ * This command must be run before executing `migrate up` for the first time.
+ *
+ * Running this command when the table already exists will display a message
+ * and exit gracefully without making any changes.
+ *
+ * {code:bash}
+ * ## Install the migrations table
+ * migrate install
+ *
+ * ## Install for a named manager
+ * migrate install --manager=secondary
+ *
+ * ## Install with verbose output
+ * migrate install --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

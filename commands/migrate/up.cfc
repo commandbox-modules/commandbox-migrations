@@ -1,8 +1,31 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
  * Apply one or all pending migrations against your database.
+ *
+ * Migrations are applied in chronological order based on their timestamp prefix.
+ * The migrations table must be installed first via `migrate install`.
+ *
+ * {code:bash}
+ * ## Run all pending migrations
+ * migrate up
+ *
+ * ## Apply only the next pending migration
+ * migrate up --once
+ *
+ * ## Preview SQL without executing (dry run)
+ * migrate up --pretend
+ *
+ * ## Save the pretend SQL output to a file
+ * migrate up --pretend --file=schema.sql
+ *
+ * ## Run migrations and then seed the database
+ * migrate up --seed
+ *
+ * ## Run migrations for a named manager
+ * migrate up --manager=secondary
+ *
+ * ## Run with verbose error output
+ * migrate up --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

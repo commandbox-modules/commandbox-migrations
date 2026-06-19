@@ -1,11 +1,27 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
- * Uninstalls the migrations table from your database.
+ * Uninstall the migrations tracking table from your database.
  *
- * The migrations table keeps track of the migrations ran against your database.
- * Uninstall it when you are removing migrations from your application.
+ * WARNING: Uninstalling will also run all your migrations DOWN before removing
+ * the tracking table. This means all applied migrations will be rolled back
+ * and all data managed by those migrations will be lost.
+ *
+ * Use this command when you are fully removing migrations from your application
+ * or want a completely clean slate. You will be asked to confirm before proceeding
+ * unless the --force flag is provided.
+ *
+ * {code:bash}
+ * ## Uninstall with confirmation prompt
+ * migrate uninstall
+ *
+ * ## Uninstall without confirmation
+ * migrate uninstall --force
+ *
+ * ## Uninstall a named manager
+ * migrate uninstall --manager=secondary
+ *
+ * ## Uninstall with verbose error output
+ * migrate uninstall --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

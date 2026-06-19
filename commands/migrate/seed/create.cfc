@@ -2,8 +2,29 @@
  * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
  * www.ortussolutions.com
  * ---
- * Create a new seeder CFC in an existing application.
+ * Create a new database seeder CFC in an existing application.
  * Make sure you are running this command in the root of your app.
+ *
+ * Seeders are used to populate your database with initial or sample data.
+ * Unlike migrations, seeders have no tracking — they can be run multiple times
+ * and each run will insert the data again.
+ *
+ * The seeder file is created in the seeds directory configured in your
+ * `.cbmigrations.json` file (defaults to `resources/database/seeds/`).
+ *
+ * {code:bash}
+ * ## Create a seeder
+ * migrate seed create UserSeeder
+ *
+ * ## Create a seeder and open it immediately for editing
+ * migrate seed create UserSeeder --open
+ *
+ * ## Create a BoxLang seeder (.bx)
+ * migrate seed create UserSeeder --boxlang
+ *
+ * ## Create a seeder for a named manager
+ * migrate seed create UserSeeder --manager=secondary
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

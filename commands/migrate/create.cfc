@@ -1,12 +1,23 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
  * Create a new migration CFC in an existing application.
  * Make sure you are running this command in the root of your app.
  *
  * It prepends the date at the beginning of the file name so
  * you can keep your migrations in the correct order.
+ *
+ * {code:bash}
+ * ## Create a simple migration
+ * migrate create CreateUsersTable
+ *
+ * ## Create and immediately open the migration for editing
+ * migrate create AddEmailToUsers --open
+ *
+ * ## Create a BoxLang migration (.bx)
+ * migrate create CreateProductsTable --boxlang
+ *
+ * ## Create a migration for a named manager
+ * migrate create CreateOrdersTable --manager=secondary
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

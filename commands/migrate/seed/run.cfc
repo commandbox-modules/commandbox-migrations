@@ -2,9 +2,28 @@
  * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
  * www.ortussolutions.com
  * ---
- * Runs one or all seeders for an application against your database.
- * Seeders have no concept of being ran.
- * Running a seeder multiple times will insert data multiple times.
+ * Run one or all database seeders for an application.
+ *
+ * Seeders populate your database with initial or sample data. They are
+ * typically used to provide development fixtures or default application data.
+ *
+ * Unlike migrations, seeders have no tracking — they can be run as many times
+ * as needed and each run will insert data again. Be careful running seeders
+ * against a database that already contains data.
+ *
+ * {code:bash}
+ * ## Run all seeders
+ * migrate seed run
+ *
+ * ## Run a specific seeder by name
+ * migrate seed run UserSeeder
+ *
+ * ## Run seeders for a named manager
+ * migrate seed run --manager=secondary
+ *
+ * ## Run a specific seeder with verbose output
+ * migrate seed run UserSeeder --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

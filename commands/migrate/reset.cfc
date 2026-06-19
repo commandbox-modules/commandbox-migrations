@@ -1,5 +1,22 @@
 /**
- * Resets the database by clearing out all objects
+ * Reset the database by dropping all tables, views, and other schema objects.
+ *
+ * WARNING: This is a destructive operation! All schema objects will be dropped.
+ * No migration `down()` methods are called — the database is wiped directly.
+ *
+ * This command is used internally by `migrate fresh`. You can run it standalone
+ * when you want to clear the database without immediately re-running migrations.
+ *
+ * {code:bash}
+ * ## Drop all database objects
+ * migrate reset
+ *
+ * ## Reset a named manager's database
+ * migrate reset --manager=secondary
+ *
+ * ## Reset with verbose error output
+ * migrate reset --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

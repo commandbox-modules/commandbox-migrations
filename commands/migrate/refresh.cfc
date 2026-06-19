@@ -1,8 +1,23 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
  * Rollback all committed migrations and then apply all migrations in order.
+ *
+ * This is the equivalent of running `migrate down` followed by `migrate up`.
+ * Unlike `migrate fresh`, this uses each migration's `down()` method to
+ * reverse changes rather than dropping all database objects directly.
+ *
+ * {code:bash}
+ * ## Roll back all migrations then re-apply them
+ * migrate refresh
+ *
+ * ## Refresh and seed the database
+ * migrate refresh --seed
+ *
+ * ## Refresh a named manager
+ * migrate refresh --manager=secondary
+ *
+ * ## Refresh with verbose error output
+ * migrate refresh --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 

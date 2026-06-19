@@ -1,8 +1,28 @@
 /**
- * Copyright Since 2005 ColdBox Framework by Luis Majano and Ortus Solutions, Corp
- * www.ortussolutions.com
- * ---
  * Rollback one or all of the migrations already ran against your database.
+ *
+ * Migrations are rolled back in reverse chronological order (newest first).
+ * Each migration's `down()` method is called to reverse the changes.
+ *
+ * {code:bash}
+ * ## Roll back all applied migrations
+ * migrate down
+ *
+ * ## Roll back only the last applied migration
+ * migrate down --once
+ *
+ * ## Preview rollback SQL without executing
+ * migrate down --pretend
+ *
+ * ## Save the pretend SQL output to a file
+ * migrate down --pretend --file=rollback.sql
+ *
+ * ## Roll back migrations for a named manager
+ * migrate down --manager=secondary
+ *
+ * ## Roll back with verbose error output
+ * migrate down --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
