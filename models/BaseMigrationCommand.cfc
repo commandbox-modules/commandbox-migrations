@@ -16,8 +16,18 @@ component {
     /**
      * Resolves the named manager's settings from the migrations config and
      * initializes `variables.migrationService` from them.
+     *
+     * @manager          The Migration Manager to use.
+     * @setupDatasource  If true, registers an on-the-fly application datasource from `connectionInfo`.
+     * @installDrivers   If true (default) and a BoxLang runtime is active, auto-installs the matching
+     *                    `bx-*` JDBC driver module from ForgeBox into `boxlang_modules/`. Pass false
+     *                    to skip auto-install (e.g. `--noDriverInstall` from the CLI).
      */
-    function setup( required string manager, boolean setupDatasource = true ) {
+    function setup(
+        required string manager,
+        boolean setupDatasource = true,
+        boolean installDrivers = true
+    ) {
         var config = getMigrationsInfo();
         if ( !config.keyExists( arguments.manager ) ) {
             error( "No manager found named [#arguments.manager#]. Available managers are: #config.keyList( ", " )#" );
@@ -41,7 +51,10 @@ component {
         if ( arguments.setupDatasource ) {
             param settings.properties = {};
             if ( settings.properties.keyExists( "connectionInfo" ) ) {
-                var datasource = installDatasource( settings.properties.connectionInfo );
+                var datasource = installDatasource(
+                    connectionInfo: settings.properties.connectionInfo,
+                    installDrivers: arguments.installDrivers
+                );
                 settings.properties.delete( "connectionInfo" );
                 settings.properties[ "datasource" ] = datasource;
             }
@@ -55,10 +68,30 @@ component {
     /**
      * Registers an on-the-fly application datasource from the given connection info
      * and sets it as the application default, returning the datasource name.
+     *
+     * When running inside a BoxLang runtime AND `installDrivers` is true, the matching
+     * `bx-*` JDBC driver module is auto-installed (if missing) and loaded from
+     * `boxlang_modules/` so the connection can be established. Set `installDrivers` to
+     * false to skip the auto-install (e.g. CI scripts using `--noDriverInstall`).
+     *
+     * @connectionInfo   The connection info struct to register as a datasource.
+     * @datasourceName   The datasource name to register under (default: `cbmigrations`).
+     * @installDrivers   If true, auto-installs/loads the matching BoxLang JDBC driver.
      */
-    function installDatasource( required struct connectionInfo, string datasourceName = "cbmigrations" ) {
+    function installDatasource(
+        required struct connectionInfo,
+        string datasourceName = "cbmigrations",
+        boolean installDrivers = true
+    ) {
+        if ( arguments.installDrivers && isBoxLang() ) {
+            var slug = detectBoxLangDriverSlug( arguments.connectionInfo );
+            if ( len( slug ) ) {
+                ensureBoxLangDriver( slug );
+            }
+        }
+
         var datasources = getApplicationSettings().datasources ?: {};
-        datasources[ "cbmigrations" ] = arguments.connectionInfo;
+        datasources[ arguments.datasourceName ] = arguments.connectionInfo;
         application action='update' datasources=datasources;
         application action='update' datasource='#arguments.datasourceName#';
         return arguments.datasourceName;
@@ -94,6 +127,115 @@ component {
                 error( "Aborting migration.  Please install the migration table and try again." );
             }
         }
+    }
+
+    /**
+     * Detects whether the active runtime is BoxLang (either inside a live BoxLang
+     * server engine, or via box.json's `language` key). Used to gate driver
+     * auto-install behavior.
+     */
+    private boolean function isBoxLang() {
+        return server.keyExists( "boxlang")
+    }
+
+    /**
+     * Resolves the BoxLang JDBC driver ForgeBox slug from a connection info struct.
+     * Resolution order:
+     *   1. `driver` key — the explicit BoxLang driver name (e.g. `bx-mysql`).
+     *   2. `type` key — Lucee-style type (`mysql`, `postgresql`, `mssql`, etc.).
+     *   3. JDBC `connectionString` URL prefix (`jdbc:mysql:`, `jdbc:postgresql:`, …).
+     *
+     * Returns the ForgeBox slug (e.g. `bx-postgresql`) or an empty string if no
+     * driver could be determined.
+     */
+    string function detectBoxLangDriverSlug( required struct connectionInfo ) {
+        var typeMap = {
+            "mysql"      : "bx-mysql",
+            "mariadb"    : "bx-mariadb",
+            "postgresql" : "bx-postgresql",
+            "pgsql"      : "bx-postgresql",
+            "mssql"      : "bx-mssql",
+            "sqlserver"  : "bx-mssql",
+            "oracle"     : "bx-oracle",
+            "oracledb"   : "bx-oracle",
+            "sqlite"     : "bx-sqlite",
+            "derby"      : "bx-derby",
+            "h2"         : "bx-hypersql",
+            "hypersql"   : "bx-hypersql",
+            "hsqldb"     : "bx-hypersql"
+        }
+
+        // 1. Explicit driver key wins
+        if ( arguments.connectionInfo.keyExists( "driver" ) && typeMap.keyExists( arguments.connectionInfo.driver) ) {
+            return typeMap[ arguments.connectionInfo.driver ]
+        }
+
+        // 2. Lucee-style `type` key (case-insensitive)
+        if ( arguments.connectionInfo.keyExists( "type" ) && typeMap.keyExists( arguments.connectionInfo.type )) {
+            return typeMap[ arguments.connectionInfo.type ]
+        }
+
+        // 3. Parse a JDBC URL prefix from `connectionString`.
+        if ( arguments.connectionInfo.keyExists( "connectionString" ) && len( arguments.connectionInfo.connectionString ) ) {
+            var connectionString = trim( arguments.connectionInfo.connectionString )
+            for ( var thisType in typeMap ) {
+                if ( findNoCase( "jdbc:#thisType#", connectionString ) == 1 ) {
+                    return typeMap[ thisType ]
+                }
+            }
+        }
+
+        return ""
+    }
+
+    /**
+     * Ensures the given BoxLang JDBC driver module is present in `boxlang_modules/`
+     * and registered with the active BoxLang runtime. Idempotent — safe to call
+     * repeatedly. Failures are logged but never break the calling command.
+     *
+     * @slug The ForgeBox slug of the driver (e.g. `bx-mysql`).
+     */
+    void function ensureBoxLangDriver( required string slug ) {
+        var modulesDir = getCWD() & "/boxlang_modules"
+        var targetModuleDir = modulesDir & "/" & arguments.slug
+
+        if ( !directoryExists( targetModuleDir ) ) {
+            variables.print
+                .yellowLine( "⬇️ Auto-installing BoxLang JDBC driver [#arguments.slug#]…" )
+                .toConsole()
+            var installed = variables.packageService.installPackage(
+                ID                      = arguments.slug,
+                directory               = modulesDir
+            )
+            if ( !installed ) {
+                variables.print
+                    .yellowLine( "⚠️ Driver [#arguments.slug#] could not be auto-installed. Continuing without it." )
+                    .toConsole()
+                return
+            }
+        }
+
+        loadBoxLangDrivers();
+    }
+
+    /**
+     * Loads any modules found under `boxlang_modules/` into the active BoxLang
+     * runtime. Calling `loadModules` on the parent directory is safe and
+     * idempotent — already-registered modules are skipped.
+     */
+    void function loadBoxLangDrivers() {
+        var modulesDir = getCWD() & "/boxlang_modules"
+        if ( !directoryExists( modulesDir ) ) {
+            return;
+        }
+
+        getBoxRuntime()
+            .getModuleService()
+            .loadModules(
+                createObject( "java", "java.nio.file.Paths" ).get( modulesDir )
+            )
+
+        print.greenLine( "⚡ BoxLang driver module(s) loaded from [#modulesDir#]." )
     }
 
     /**

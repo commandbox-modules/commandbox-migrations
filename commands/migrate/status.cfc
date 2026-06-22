@@ -25,15 +25,17 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
 	/**
-	 * @manager       The Migration Manager to use.
+	 * @manager          The Migration Manager to use.
 	 * @manager.optionsUDF completeManagers
-	 * @json          If true, outputs the status as a JSON object.
-	 * @verbose       If true, errors output a full stack trace and config details are shown.
+	 * @json             If true, outputs the status as a JSON object.
+	 * @verbose          If true, errors output a full stack trace and config details are shown.
+	 * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
 	 */
 	function run(
 		string manager = "default",
 		boolean json = false,
-		boolean verbose = false
+		boolean verbose = false,
+		boolean installDrivers = true
 	) {
 		// ── Resolve config & migrations directory (always works, no DB needed) ──
 		var config         = getMigrationsInfo();
@@ -70,7 +72,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		var allMigrations   = [];
 
 		try {
-			setup( arguments.manager );
+			setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
 			isTableInstalled = variables.migrationService.isReady();
 			allMigrations    = variables.migrationService.findAll();

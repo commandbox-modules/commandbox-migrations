@@ -27,21 +27,23 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @once          Only rollback a single migration.
-     * @manager       The Migration Manager to use.
+     * @once             Only rollback a single migration.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose       If true, errors output a full stack trace.
-     * @pretend       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @verbose          If true, errors output a full stack trace.
+     * @pretend          If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file             If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
     function run(
         boolean once = false,
         string manager = "default",
         boolean verbose = false,
         boolean pretend = false,
-        string file
+        string file,
+        boolean installDrivers = true
     ) {
-        setup( arguments.manager );
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers )
 
         if ( arguments.verbose ) {
             print.blackOnYellowLine( "cbmigrations info:" );

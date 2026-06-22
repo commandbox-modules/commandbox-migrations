@@ -28,14 +28,20 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @name          The name of a seed to run. Runs all seeds if left blank.
-     * @name.optionsUDF    completeSeedNames
-     * @manager       The Migration Manager to use.
+     * @name             The name of a seed to run. Runs all seeds if left blank.
+     * @name.optionsUDF  completeSeedNames
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose       If true, errors output a full stack trace.
+     * @verbose          If true, errors output a full stack trace.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
-    function run( string name = "", string manager = "default", boolean verbose = false ) {
-        setup( arguments.manager );
+    function run(
+        string name = "",
+        string manager = "default",
+        boolean verbose = false,
+        boolean installDrivers = true
+    ) {
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( getMigrationsConfigType() == "boxJSON" ) {
             error( "Seeders can only be ran after migrating to the new v4 migrations configuration." );

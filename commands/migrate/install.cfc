@@ -22,12 +22,13 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose       If true, errors will output a full stack trace.
+     * @verbose          If true, errors will output a full stack trace.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
-    function run( string manager = "default", boolean verbose = false ) {
-        setup( arguments.manager );
+    function run( string manager = "default", boolean verbose = false, boolean installDrivers = true ) {
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( verbose ) {
             print.blackOnYellowLine( "cbmigrations info:" );

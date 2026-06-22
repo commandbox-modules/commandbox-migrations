@@ -30,13 +30,14 @@
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @seed          If true, runs all seeders for the manager after creating a fresh database.
-     * @once          Only apply a single migration.
-     * @verbose       If true, errors output a full stack trace.
-     * @pretend       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @seed             If true, runs all seeders for the manager after creating a fresh database.
+     * @once             Only apply a single migration.
+     * @verbose          If true, errors output a full stack trace.
+     * @pretend          If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file             If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
     function run(
         string manager = "default",
@@ -44,9 +45,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         boolean once = false,
         boolean verbose = false,
         boolean pretend = false,
-        string file
+        string file,
+        boolean installDrivers = true
     ) {
-        setup( arguments.manager );
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( arguments.verbose ) {
             print.blackOnYellowLine( "cbmigrations info:" );
