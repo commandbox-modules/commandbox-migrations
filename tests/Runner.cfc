@@ -25,8 +25,9 @@ component {
         // Seed the test specs with the project root so they can locate the command files and templates
 		request.commandboxMigrationsProjectRoot = projectRoot
 
+		// Recurse = true so any nested spec directories are picked up automatically
 		var tb = new testbox.system.TestBox(
-			directory = { "mapping" : "tests.specs", "recurse" : false },
+			directory = { "mapping" : "tests.specs", "recurse" : true },
 			reporter  = "text"
 		)
 
