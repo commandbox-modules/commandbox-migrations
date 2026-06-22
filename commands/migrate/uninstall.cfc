@@ -49,7 +49,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         try {
             if ( !variables.migrationService.isReady() ) {
-                print.line( "No Migration table detected." );
+                print.yellowLine( "📭 No Migration table detected." );
                 return;
             }
 
@@ -59,14 +59,14 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 )
             ) {
                 variables.migrationService.uninstall();
-                print.line( "Migration table uninstalled!" ).line();
+                print.greenLine( "🗑️ Migration table uninstalled!" ).line();
             } else {
-                print.line( "Aborting uninstall process." );
+                print.yellowLine( "⏭️ Aborting uninstall process." );
             }
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to uninstall #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

@@ -36,11 +36,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         try {
             variables.migrationService.reset();
-            print.greenLine( "Database reset!" );
+            print.greenLine( "🔄 Database reset!" );
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.whiteOnRedLine( "❌ Error when trying to reset the database:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

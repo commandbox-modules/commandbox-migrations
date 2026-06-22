@@ -37,16 +37,16 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
         try {
             if ( variables.migrationService.isReady() ) {
-                print.line( "Migration table already installed." );
+                print.yellowLine( "ℹ️ Migration table already installed." );
                 return;
             }
 
             variables.migrationService.install();
-            print.line( "Migration table installed!" ).line();
+            print.greenLine( "✅ Migration table installed!" ).line();
         } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.whiteOnRedLine( "❌ Error when trying to install the migration table:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

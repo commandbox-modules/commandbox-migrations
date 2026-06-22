@@ -53,7 +53,7 @@ component {
 
             if ( !directoryExists( expandPath( settings.seedsDirectory ) ) ) {
                 directoryCreate( expandPath( settings.seedsDirectory ) );
-                print.line( "Created seeds directory" )
+                print.greenLine( "📁 Created seeds directory" )
             }
         }
         if ( arguments.setupDatasource ) {
@@ -321,7 +321,7 @@ component {
         var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
 
         if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
-            print.boldUnderscoredYellowLine( "Storing cfmigrations information in box.json has been deprecated in v4 and will be removed in v5." )
+        print.boldUnderscoredYellowLine( "📦 Storing cfmigrations information in box.json has been deprecated in v4 and will be removed in v5." );
             print.line( "Please refer to the migration guide at https://github.com/commandbox-modules/commandbox-migrations to upgrade." )
             print.line()
 

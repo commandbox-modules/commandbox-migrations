@@ -60,16 +60,16 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                 seedName = arguments.name == "" ? nullValue() : arguments.name,
                 preProcessHook = ( seeder ) => {
                     currentlyRunningSeeder = seeder;
-                    print.yellow( "Seeding: " ).line( seeder ).toConsole();
+                    print.yellow( "🌱 Seeding: " ).line( seeder ).toConsole();
                 },
                 postProcessHook = ( seeder ) => {
-                    print.green( "Seeded:  " ).line( seeder ).toConsole();
+                    print.green( "✅ Seeded:  " ).line( seeder ).toConsole();
                 }
             );
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to seed #currentlyRunningSeeder#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to seed #currentlyRunningSeeder#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;
@@ -92,7 +92,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         if ( currentlyRunningSeeder == "UNKNOWN" ) {
-            print.line( "No seeders to run." );
+            print.yellowLine( "📭 No seeders to run." );
         }
     }
 

@@ -58,19 +58,19 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             checkForInstalledMigrationTable();
 
             if ( !variables.migrationService.hasMigrationsToRun( "down" ) ) {
-                print.line().yellowLine( "No migrations to rollback." ).line();
+                print.line().yellowLine( "📭 No migrations to rollback." ).line();
             } else if ( arguments.once ) {
                 variables.migrationService.runNextMigration(
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏪ Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Rolled back:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to roll back:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -93,13 +93,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏪ Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Rolled back:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to roll back:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -121,7 +121,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to roll back #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

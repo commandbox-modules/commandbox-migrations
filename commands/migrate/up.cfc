@@ -63,19 +63,19 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             checkForInstalledMigrationTable();
 
             if ( !migrationService.hasMigrationsToRun( "up" ) ) {
-                print.line().yellowLine( "No migrations to run." ).line();
+                print.line().yellowLine( "📭 No migrations to run." ).line();
             } else if ( once ) {
                 migrationService.runNextMigration(
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏫ Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Migrated:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to migrate:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to migrate:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -98,13 +98,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏫ Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Migrated:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to migrate:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to migrate:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -126,7 +126,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to run #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;
