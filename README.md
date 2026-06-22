@@ -4,7 +4,7 @@ CommandBox Migrations is a [CommandBox](https://www.ortussolutions.com/products/
 
 ## Features
 
-- **CLI-driven** — Run migrations from anywhere using `migrate up`, `migrate down`, `migrate fresh`, and more.
+- **CLI-driven** — Run migrations from anywhere using `migrate up`, `migrate down`, `migrate status`, `migrate fresh`, and more.
 - **Multi-manager support** — Manage multiple named migration configurations (e.g., `default`, `alternate`) from a single project.
 - **Seeding** — Create and run database seeds with `migrate seed create` and `migrate seed run`.
 - **BoxLang support** — Full support for BoxLang projects with automatic detection and `.cbmigrations.json` config.
@@ -284,6 +284,43 @@ This migration table keeps track of the ran migrations.
 
 Passing the `--verbose` flag will show the resolved migrations config
 as well as the full stack trace of any errors.
+
+### `migrate status [manager] [--verbose] [--json]`
+
+Displays the current migration status for the given manager — including
+the configured directory, tracking table state, applied/pending counts,
+the current database revision, and a table of all migration files with
+their status.
+
+When the database is unreachable, the command degrades gracefully and
+shows the migration files present on disk with an unknown status.
+
+Passing `--verbose` shows the resolved migrations configuration above the
+status table.
+
+Passing `--json` outputs the status as a JSON object for CI/CD scripting:
+
+```json
+{
+  "manager": "default",
+  "directory": "resources/database/migrations/",
+  "dbAvailable": true,
+  "tableInstalled": true,
+  "applied": 1,
+  "pending": 1,
+  "total": 2,
+  "currentRevision": "2022_11_01_192710_create_users_table",
+  "migrations": [
+    {
+      "componentName": "2022_11_01_192710_create_users_table",
+      "timestamp": "2022-11-01 19:27:10",
+      "migrated": true,
+      "canMigrateUp": false,
+      "canMigrateDown": true
+    }
+  ]
+}
+```
 
 ### `migrate create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
 
