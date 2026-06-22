@@ -38,24 +38,24 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		boolean installDrivers = true
 	) {
 		// ── Resolve config & migrations directory (always works, no DB needed) ──
-		var config         = getMigrationsInfo();
-		var migrationsDir  = "";
+		var config         = getMigrationsInfo()
+		var migrationsDir  = ""
 
 		if ( !config.keyExists( arguments.manager ) ) {
 			return error(
 				"No manager found named [#arguments.manager#].",
 				"Available managers are: #config.keyList( ", " )#"
-			);
+			)
 		}
 
-		var managerConfig  = config[ arguments.manager ];
+		var managerConfig  = config[ arguments.manager ]
 		migrationsDir      = len( trim( managerConfig.migrationsDirectory ) )
 			? managerConfig.migrationsDirectory
-			: "resources/database/migrations/";
+			: "resources/database/migrations/"
 
 		if ( arguments.verbose ) {
-			print.blackOnYellowLine( "cbmigrations info:" );
-			print.line( config ).line();
+			print.blackOnYellowLine( "cbmigrations info:" )
+			print.line( config ).line()
 		}
 
 		// ── List migration files from disk ────────────────────────────────────

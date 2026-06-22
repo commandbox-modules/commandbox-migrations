@@ -12,6 +12,14 @@ component {
 	property name="systemSettings" inject="SystemSettings";
     property name="sqlFormatter" inject="Formatter@sqlFormatter";
     property name="serverService" inject="ServerService";
+    property name="moduleConfig"         inject="box:moduleconfig:commandbox-migrations";
+
+    /**
+	 * Initialize the BaseCommand
+	 */
+	function init(){
+		return this;
+	}
 
     /**
      * Resolves the named manager's settings from the migrations config and
@@ -196,7 +204,7 @@ component {
      * @slug The ForgeBox slug of the driver (e.g. `bx-mysql`).
      */
     void function ensureBoxLangDriver( required string slug ) {
-        var modulesDir = getCWD() & "/boxlang_modules"
+        var modulesDir = variables.moduleConfig.path & "/boxlang_modules"
         var targetModuleDir = modulesDir & "/" & arguments.slug
 
         if ( !directoryExists( targetModuleDir ) ) {
@@ -292,63 +300,42 @@ component {
      * the legacy pre-v4 format if needed).
      */
     private struct function getMigrationsInfo() {
-        var migrationsInfoType = "boxJSON";
-        var directory = getCWD();
+        var migrationsInfoType = "boxJSON"
+        var directory = getCWD()
 
         // Check and see if a .cbmigrations.json or .cfmigrations.json file exists
-        var configPath = findMigrationsConfigPath( directory );
+        var configPath = findMigrationsConfigPath( directory )
         if ( len( configPath ) ) {
-            var migrationsInfo = deserializeJSON( fileRead( configPath ) );
-            variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
-            migrationsInfoType = "cfmigrations";
-            return migrationsInfo;
+            var migrationsInfo = deserializeJSON( fileRead( configPath ) )
+            variables.systemSettings.expandDeepSystemSettings( migrationsInfo )
+            migrationsInfoType = "cfmigrations"
+            return migrationsInfo
         }
 
         // Check and see if box.json exists
         if( !packageService.isPackage( directory ) ) {
-            return error( "File [#packageService.getDescriptorPath( directory )#] does not exist." );
+            return error( "File [#packageService.getDescriptorPath( directory )#] does not exist." )
         }
-
-        print.boldUnderscoredYellowLine( "Storing cfmigrations information in box.json has been deprecated in v4 and will be removed in v5." );
-        print.line( "Please refer to the migration guide at https://github.com/commandbox-modules/commandbox-migrations to upgrade." );
-        print.line();
 
         var boxJSON = packageService.readPackageDescriptor( directory );
         var boxJSONMigrationsInfo = JSONService.show( boxJSON, "cfmigrations", {} );
 
         if ( boxJSONMigrationsInfo.keyExists( "managers" ) ) {
-            var migrationsInfo = boxJSONMigrationsInfo;
-            variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
-            migrationsInfoType = "cfmigrations";
-            return migrationsInfo;
+            print.boldUnderscoredYellowLine( "Storing cfmigrations information in box.json has been deprecated in v4 and will be removed in v5." )
+            print.line( "Please refer to the migration guide at https://github.com/commandbox-modules/commandbox-migrations to upgrade." )
+            print.line()
+
+            var migrationsInfo = boxJSONMigrationsInfo
+            variables.systemSettings.expandDeepSystemSettings( migrationsInfo )
+            migrationsInfoType = "cfmigrations"
+            return migrationsInfo
         }
 
-        print.boldUnderscoredYellowLine( "The format of the migrations configuration has changed in v4." );
-        print.line( "We will convert your configuration to the new format. This auto-conversion will be dropped in v5." );
-        print.line( "Please refer to the migration guide at https://github.com/commandbox-modules/commandbox-migrations to upgrade." );
-        print.line();
+        throw(
+            type: "NoMigrationsConfigFound",
+            message: "No migrations config found. Please create a .cbmigrations.json file found in the project root, or run migrate init to create one."
+        )
 
-        param boxJSONMigrationsInfo.migrationsDirectory = "resources/database/migrations";
-        param boxJSONMigrationsInfo.defaultGrammar = "AutoDiscover@qb";
-
-        var properties = {
-            "connectionInfo": boxJSONMigrationsInfo.connectionInfo,
-            "defaultGrammar": boxJSONMigrationsInfo.defaultGrammar
-        };
-        if ( boxJSONMigrationsInfo.keyExists( "schema" ) ) {
-            properties[ "schema" ] = boxJSONMigrationsInfo.schema;
-        }
-
-        var migrationsInfo = {
-            "default": {
-                "manager": "cfmigrations.models.QBMigrationManager",
-                "migrationsDirectory": boxJSONMigrationsInfo.migrationsDirectory,
-                "properties": properties
-            }
-        };
-
-        variables.systemSettings.expandDeepSystemSettings( migrationsInfo );
-        return migrationsInfo;
     }
 
     /**
