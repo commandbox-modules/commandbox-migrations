@@ -71,10 +71,10 @@ component extends="testbox.system.BaseSpec" {
 				expect( content ).toInclude( '? "BX" : ""' );
 			} );
 
-			it( "should use the yyyy_mm_dd_HHnnss timestamp format", () => {
+			it( "should use the yyyy_MM_dd_HHnnss timestamp format", () => {
 				var commandPath = variables.projectRoot & "commands/migrate/create.cfc";
 				var content     = fileRead( commandPath );
-				expect( content ).toInclude( "yyyy_mm_dd_HHnnss" );
+				expect( content ).toInclude( "yyyy_MM_dd_HHnnss" );
 			} );
 
 			it( "should create the migrationsDirectory if it does not exist", () => {
@@ -134,13 +134,13 @@ component extends="testbox.system.BaseSpec" {
 
 			it( "should generate a valid timestamp string", () => {
 				// Simulate what the command does
-				var timestamp = dateFormat( now(), "yyyy_mm_dd" ) & "_" & timeFormat( now(), "HHnnss" );
+				var timestamp = dateFormat( now(), "yyyy_MM_dd" ) & "_" & timeFormat( now(), "HHnnss" );
 				expect( reFind( "^\d{4}_\d{2}_\d{2}_\d{6}$", timestamp ) ).toBeTrue();
 			} );
 
 			it( "should produce sortable filenames", () => {
-				var ts1 = dateFormat( "2024-01-01", "yyyy_mm_dd" ) & "_" & timeFormat( "08:00:00", "HHnnss" );
-				var ts2 = dateFormat( "2024-01-02", "yyyy_mm_dd" ) & "_" & timeFormat( "08:00:00", "HHnnss" );
+				var ts1 = dateFormat( "2024-01-01", "yyyy_MM_dd" ) & "_" & timeFormat( "08:00:00", "HHnnss" );
+				var ts2 = dateFormat( "2024-01-02", "yyyy_MM_dd" ) & "_" & timeFormat( "08:00:00", "HHnnss" );
 				expect( ts1 < ts2 ).toBeTrue();
 			} );
 

@@ -43,7 +43,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         var extension = arguments.boxlang ? "bx" : "cfc"
-        var timestamp = dateTimeFormat( now(), "yyyy_mm_dd_HHnnss" )
+        var timestamp = dateTimeFormat( now(), "yyyy_MM_dd_HHnnss" )
         var migrationPath = "#migrationsDirectory##timestamp#_#arguments.name#.#extension#"
         var migrationContent = fileRead( "/commandbox-migrations/templates/Migration#arguments.boxlang ? "BX" : ""#.txt" )
 
