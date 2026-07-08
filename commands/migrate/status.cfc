@@ -2,8 +2,9 @@
  * Show the current status of migrations for a manager.
  *
  * Displays a summary of the migration configuration, tracking table state,
- * applied/pending counts, the current database revision, and a per-migration
- * table showing which files are applied or pending.
+ * applied/pending counts, the current database revision, a per-migration
+ * table showing which files are applied or pending, and a list of
+ * available seeders.
  *
  * When the database is unreachable, the command degrades gracefully and
  * shows the migration files present on disk with an unknown status.
@@ -40,6 +41,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		// ── Resolve config & migrations directory (always works, no DB needed) ──
 		var config         = getMigrationsInfo()
 		var migrationsDir  = ""
+		var seedsDir       = ""
 
 		if ( !config.keyExists( arguments.manager ) ) {
 			return error(
@@ -52,6 +54,9 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		migrationsDir      = len( trim( managerConfig.migrationsDirectory ) )
 			? managerConfig.migrationsDirectory
 			: "resources/database/migrations/"
+		seedsDir           = managerConfig.keyExists( "seedsDirectory" ) && len( trim( managerConfig.seedsDirectory ) )
+			? managerConfig.seedsDirectory
+			: "resources/database/seeds/"
 
 		if ( arguments.verbose ) {
 			print.blackOnYellowLine( "cbmigrations info:" )
@@ -61,6 +66,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		// ── List migration files from disk ────────────────────────────────────
 		var resolvedPath = getCWD() & "/" & migrationsDir;
 		var diskFiles    = listMigrationFiles( resolvedPath );
+
+		// ── List seeder files from disk ───────────────────────────────────────
+		var seedsResolvedPath = getCWD() & "/" & seedsDir;
+		var seederFiles       = listSeederFiles( seedsResolvedPath );
 
 		// ── Try to connect to DB for applied/pending info ─────────────────────
 		var dbAvailable      = false;
@@ -97,6 +106,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 				serializeJSON( {
 					"manager"        : arguments.manager,
 					"directory"      : migrationsDir,
+					"seedsDirectory" : seedsDir,
 					"dbAvailable"    : dbAvailable,
 					"tableInstalled" : isTableInstalled,
 					"applied"        : appliedCount,
@@ -113,6 +123,12 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 							"canMigrateUp"  : m.canMigrateUp ?: false,
 							"canMigrateDown": m.canMigrateDown ?: false
 						};
+					} ),
+					"seeders"        : seederFiles.map( ( s ) => {
+						return {
+							"componentName" : s.componentName,
+							"fileName"      : s.fileName
+						};
 					} )
 				} )
 			);
@@ -123,7 +139,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		print.boldLine( "Migration Status" ).line();
 
 		print.bold( "Manager:    " ).line( arguments.manager );
-		print.bold( "Directory:  " ).line( migrationsDir );
+		print.bold( "Migrations: " ).line( migrationsDir );
+		print.bold( "Seeds:      " ).line( seedsDir );
 
 		if ( !dbAvailable ) {
 			print.bold( "Database:   " ).yellowLine( "⚠ Unreachable" );
@@ -141,6 +158,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		print.bold( "Applied:    " ).line( dbAvailable ? appliedCount : "?" );
 		print.bold( "Pending:    " ).yellowLine( dbAvailable ? pendingCount : "?" );
 		print.bold( "Total:      " ).line( totalCount );
+		print.bold( "Seeders:    " ).line( seederFiles.len() );
 
 		print.line();
 
@@ -160,55 +178,80 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 			print.line();
 			print.yellowLine( "📭 No migration files found." );
 			print.line( "💡 Run 'migrate create <name>' to create your first migration." );
-			return;
-		}
-
-		if ( dbAvailable && !isTableInstalled ) {
-			print.yellowLine( "The migration tracking table has not been installed." );
-			print.yellowLine( "Run 'migrate install' to create it, then re-run this command." );
-			print.line();
-		}
-
-		// Helpful next-step tips based on state
-		if ( dbAvailable && isTableInstalled && pendingCount && !currentRevision.len() ) {
-			print.line();
-			print.yellowLine( "💡 No migrations have been applied yet. Run 'migrate up' to apply them." );
-		} else if ( dbAvailable && isTableInstalled && pendingCount && currentRevision.len() ) {
-			print.line();
-			if ( nextMigration.keyExists( "componentName" ) ) {
-				print.yellowLine( "💡 Next migration to run: #nextMigration.componentName#" );
+		} else {
+			if ( dbAvailable && !isTableInstalled ) {
+				print.yellowLine( "The migration tracking table has not been installed." );
+				print.yellowLine( "Run 'migrate install' to create it, then re-run this command." );
+				print.line();
 			}
-		} else if ( dbAvailable && isTableInstalled && !pendingCount && currentRevision.len() ) {
-			print.line();
-			print.greenLine( "✅ Database is up to date." );
-		}
 
-		print.line();
-
-		// Column separators
-		var sep = repeatString( "─", 80 );
-
-		print.boldLine( sep );
-		print.bold( "Status   " ).bold( "Timestamp              " ).boldLine( "Migration" );
-		print.boldLine( sep );
-
-		for ( var m in allMigrations ) {
-			var tsFormatted = isDate( m.timestamp )
-				? dateTimeFormat( m.timestamp, "yyyy-mm-dd HH:nn:ss" )
-				: m.timestamp;
-
-			if ( !dbAvailable ) {
-				print.yellow( " ?       " );
-			} else if ( m.migrated ) {
-				print.green( " ✓       " );
-			} else {
-				print.yellow( " ⏳       " );
+			// Helpful next-step tips based on state
+			if ( dbAvailable && isTableInstalled && pendingCount && !currentRevision.len() ) {
+				print.line();
+				print.yellowLine( "💡 No migrations have been applied yet. Run 'migrate up' to apply them." );
+			} else if ( dbAvailable && isTableInstalled && pendingCount && currentRevision.len() ) {
+				print.line();
+				if ( nextMigration.keyExists( "componentName" ) ) {
+					print.yellowLine( "💡 Next migration to run: #nextMigration.componentName#" );
+				}
+			} else if ( dbAvailable && isTableInstalled && !pendingCount && currentRevision.len() ) {
+				print.line();
+				print.greenLine( "✅ Database is up to date." );
 			}
-			print.line( "#tsFormatted#  #m.componentName#" ).toConsole();
+
+			print.line();
+
+			// Column separators
+			var sep = repeatString( "─", 80 );
+
+			print.boldLine( sep );
+			print.bold( "Status   " ).bold( "Timestamp              " ).boldLine( "Migration" );
+			print.boldLine( sep );
+
+			for ( var m in allMigrations ) {
+				var tsFormatted = isDate( m.timestamp )
+					? dateTimeFormat( m.timestamp, "yyyy-mm-dd HH:nn:ss" )
+					: m.timestamp;
+
+				if ( !dbAvailable ) {
+					print.yellow( " ?       " );
+				} else if ( m.migrated ) {
+					print.green( " ✓       " );
+				} else {
+					print.yellow( " ⏳       " );
+				}
+				print.line( "#tsFormatted#  #m.componentName#" ).toConsole();
+			}
+
+			print.boldLine( sep );
+			print.line();
 		}
 
-		print.boldLine( sep );
-		print.line();
+		// ── Seeder Table ─────────────────────────────────────────────────────
+		if ( seederFiles.len() ) {
+			print.line();
+			print.boldLine( "Seeders" );
+			print.line();
+
+			var seedSep = repeatString( "─", 80 );
+			print.boldLine( seedSep );
+			print.bold( "Status   " ).boldLine( "Seeder" );
+			print.boldLine( seedSep );
+
+			for ( var s in seederFiles ) {
+				print.green( " 🌱       " ).line( s.componentName ).toConsole();
+			}
+
+			print.boldLine( seedSep );
+			print.line();
+			print.yellowLine( "💡 Run 'migrate seed run' to execute all seeders, or 'migrate seed run <Name>' for a specific one." );
+			print.line();
+		} else {
+			print.line();
+			print.yellowLine( "📭 No seeder files found." );
+			print.line( "💡 Run 'migrate seed create <name>' to create your first seeder." );
+			print.line();
+		}
 
 		if ( !dbAvailable ) {
 			print.yellowLine( "Tip: Ensure your database is running and environment variables are configured." );
@@ -243,8 +286,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
 		return files
 			.map( ( file ) => {
-				var fileName     = getFileFromPath( file );
-				var componentName = filename.reReplaceNoCase( "\.(cfc|bx)$", "" );
+				var fileName      = getFileFromPath( file );
+				var componentName = reReplaceNoCase( fileName, "\.(cfc|bx)$", "" );
 				return {
 					fileName      : fileName,
 					componentName : componentName,
@@ -252,6 +295,40 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 				};
 			} )
 			.filter( ( file ) => isDate( file.timestamp ) );
+	}
+
+	/**
+	 * Lists seeder files from the given directory on disk. Seeders have no
+	 * timestamp prefix and no tracking state — they can be run multiple times.
+	 *
+	 * @directory Absolute path to the seeds directory.
+	 *
+	 * @return Array of structs with keys: fileName, componentName.
+	 */
+	private array function listSeederFiles( required string directory ) {
+		if ( !directoryExists( arguments.directory ) ) {
+			return [];
+		}
+
+		var files = directoryList(
+			arguments.directory,
+			true,
+			"array",
+			"*.cfc|*.bx"
+		);
+
+		if ( !files.len() ) {
+			return [];
+		}
+
+		return files.map( ( file ) => {
+			var fileName      = getFileFromPath( file );
+			var componentName = reReplaceNoCase( fileName, "\.(cfc|bx)$", "" );
+			return {
+				fileName      : fileName,
+				componentName : componentName
+			};
+		} );
 	}
 
 	/**
