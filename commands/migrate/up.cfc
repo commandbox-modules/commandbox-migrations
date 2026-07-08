@@ -64,7 +64,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
             if ( !migrationService.hasMigrationsToRun( "up" ) ) {
                 print.line().yellowLine( "📭 No migrations to run." ).line();
-            } else if ( once ) {
+            } else if ( arguments.once ) {
                 migrationService.runNextMigration(
                     direction = "up",
                     preProcessHook = ( migration ) => {
@@ -144,7 +144,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ) ).toAnsi()#"
                     );
                 default:
-                    rethrow;
+                    throw( e )
             }
         }
 
@@ -156,7 +156,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         if ( arguments.pretend && !isNull( arguments.file ) ) {
-            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="666" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
+            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="644" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
             print.whiteOnBlueLine( "Wrote SQL to file: #arguments.file#" );
         }
 
