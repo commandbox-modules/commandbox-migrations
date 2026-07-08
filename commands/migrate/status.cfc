@@ -61,15 +61,11 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		// ── List migration files from disk ────────────────────────────────────
 		var resolvedPath = getCWD() & "/" & migrationsDir;
 		var diskFiles    = listMigrationFiles( resolvedPath );
-		var totalCount   = diskFiles.len();
 
 		// ── Try to connect to DB for applied/pending info ─────────────────────
-		var dbAvailable     = false;
+		var dbAvailable      = false;
 		var isTableInstalled = false;
-		var appliedCount    = 0;
-		var pendingCount    = totalCount;
-		var currentRevision = "Unknown";
-		var allMigrations   = [];
+		var allMigrations    = [];
 
 		try {
 			setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
@@ -77,26 +73,23 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 			isTableInstalled = variables.migrationService.isReady();
 			allMigrations    = variables.migrationService.findAll();
 			dbAvailable      = true;
-
-			var appliedMigrations = allMigrations.filter( ( m ) => m.migrated );
-			appliedCount          = appliedMigrations.len();
-			pendingCount          = allMigrations.len() - appliedCount;
-			currentRevision       = appliedMigrations.len()
-				? appliedMigrations[ appliedMigrations.len() ].componentName
-				: "None";
 		} catch ( any e ) {
-			// DB unreachable — build a disk-only migration list for display
+			// DB unreachable — we'll fall back to disk-only display below
 			dbAvailable = false;
-			allMigrations = diskFiles.map( ( file ) => {
-				return {
-					componentName  : file.componentName,
-					timestamp      : file.timestamp,
-					migrated       : false,
-					canMigrateUp   : false,
-					canMigrateDown : false
-				}
-			} )
 		}
+
+		// ── Build a unified list: disk files + DB records ─────────────────────
+		// Disk files are the source of truth for "what exists". DB records
+		// provide the `migrated` state. The merge ensures pending migrations
+		// (on disk but not yet applied) show up in the table and counts.
+		allMigrations = buildMigrationList( diskFiles, dbAvailable ? allMigrations : [], dbAvailable );
+
+		var appliedCount = dbAvailable ? allMigrations.filter( ( m ) => m.migrated ).len() : 0;
+		var pendingCount = dbAvailable ? allMigrations.filter( ( m ) => !m.migrated ).len() : 0;
+		var totalCount   = allMigrations.len();
+		var lastApplied  = dbAvailable ? allMigrations.filter( ( m ) => m.migrated ) : [];
+		var currentRevision = lastApplied.len() ? lastApplied[ lastApplied.len() ].componentName : "";
+		var nextMigration   = dbAvailable ? ( allMigrations.find( ( m ) => !m.migrated ) ?: {} ) : {};
 
 		// ── JSON output ───────────────────────────────────────────────────────
 		if ( arguments.json ) {
@@ -150,17 +143,23 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		print.bold( "Total:      " ).line( totalCount );
 
 		print.line();
-		print.bold( "Current Revision: " );
+
+		// ── Current Revision (only meaningful when DB is available) ──────────
 		if ( dbAvailable ) {
-			print.line( currentRevision );
+			if ( currentRevision.len() ) {
+				print.bold( "Current Revision: " ).line( currentRevision );
+			} else if ( totalCount ) {
+				print.bold( "Current Revision: " ).yellowLine( "— (no migrations applied yet)" );
+			}
 		} else {
-			print.yellowLine( currentRevision );
+			print.bold( "Current Revision: " ).yellowLine( "Unknown (database unreachable)" );
 		}
-		print.line();
 
 		// ── Migration Table ───────────────────────────────────────────────────
 		if ( !totalCount ) {
-			print.yellowLine( "No migration files found." );
+			print.line();
+			print.yellowLine( "📭 No migration files found." );
+			print.line( "💡 Run 'migrate create <name>' to create your first migration." );
 			return;
 		}
 
@@ -169,6 +168,22 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 			print.yellowLine( "Run 'migrate install' to create it, then re-run this command." );
 			print.line();
 		}
+
+		// Helpful next-step tips based on state
+		if ( dbAvailable && isTableInstalled && pendingCount && !currentRevision.len() ) {
+			print.line();
+			print.yellowLine( "💡 No migrations have been applied yet. Run 'migrate up' to apply them." );
+		} else if ( dbAvailable && isTableInstalled && pendingCount && currentRevision.len() ) {
+			print.line();
+			if ( nextMigration.keyExists( "componentName" ) ) {
+				print.yellowLine( "💡 Next migration to run: #nextMigration.componentName#" );
+			}
+		} else if ( dbAvailable && isTableInstalled && !pendingCount && currentRevision.len() ) {
+			print.line();
+			print.greenLine( "✅ Database is up to date." );
+		}
+
+		print.line();
 
 		// Column separators
 		var sep = repeatString( "─", 80 );
@@ -219,7 +234,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 			arguments.directory,
 			true,
 			"array",
-			"*"
+			"*.cfc|*.bx"
 		);
 
 		if ( !files.len() ) {
@@ -227,13 +242,9 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		}
 
 		return files
-			.filter( ( file ) => {
-				var ext = listLast( file, "." );
-				return listFindNoCase( "cfc,bx", ext );
-			} )
 			.map( ( file ) => {
 				var fileName     = getFileFromPath( file );
-				var componentName = left( fileName, len( fileName ) - 4 );
+				var componentName = filename.reReplaceNoCase( "\.(cfc|bx)$", "" );
 				return {
 					fileName      : fileName,
 					componentName : componentName,
@@ -266,6 +277,81 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
 		} catch ( any e ) {
 			return "";
 		}
+	}
+
+	/**
+	 * Merges disk files with database migration records into a single,
+	 * sorted list. Disk files are the source of truth for "what exists" —
+	 * this ensures pending migrations (on disk but not yet applied) appear
+	 * in the status output with their correct pending state.
+	 *
+	 * @diskFiles      Array of structs from listMigrationFiles() (fileName, componentName, timestamp).
+	 * @dbMigrations   Array of migration records from migrationService.findAll().
+	 * @dbAvailable    If false, DB records are ignored and the returned records are marked as unknown.
+	 *
+	 * @return Array of unified migration structs, sorted by timestamp (oldest first).
+	 */
+	private array function buildMigrationList(
+		required array diskFiles,
+		required array dbMigrations,
+		required boolean dbAvailable
+	) {
+		// Build lookups keyed by component name for O(1) access
+		var dbByName = {};
+		for ( var m in arguments.dbMigrations ) {
+			dbByName[ m.componentName ] = m;
+		}
+
+		var diskByName = {};
+		for ( var f in arguments.diskFiles ) {
+			diskByName[ f.componentName ] = f;
+		}
+
+		// Union of all component names (preserves insertion order)
+		var allNames = {};
+		for ( var name in dbByName ) {
+			allNames[ name ] = true;
+		}
+		for ( var name in diskByName ) {
+			allNames[ name ] = true;
+		}
+
+		// Build merged records
+		var merged = [];
+		for ( var name in allNames ) {
+			var dbRec   = structKeyExists( dbByName, name ) ? dbByName[ name ] : {};
+			var diskRec = structKeyExists( diskByName, name ) ? diskByName[ name ] : {};
+			var onDisk  = structKeyExists( diskByName, name );
+
+			// Prefer the DB timestamp (more precise), fall back to the filename
+			var ts = "";
+			if ( structKeyExists( dbRec, "timestamp" ) && isDate( dbRec.timestamp ) ) {
+				ts = dbRec.timestamp;
+			} else if ( structKeyExists( diskRec, "timestamp" ) ) {
+				ts = diskRec.timestamp;
+			}
+
+			merged.append( {
+				componentName  : name,
+				timestamp      : ts,
+				migrated       : arguments.dbAvailable && structKeyExists( dbRec, "migrated" ) ? ( dbRec.migrated ?: false ) : false,
+				canMigrateUp   : arguments.dbAvailable ? ( dbRec.canMigrateUp ?: ( onDisk && !structKeyExists( dbByName, name ) ) ) : false,
+				canMigrateDown : arguments.dbAvailable ? ( dbRec.canMigrateDown ?: false ) : false,
+				onDisk         : onDisk
+			} );
+		}
+
+		// Sort by timestamp, oldest first. Items without a parsable timestamp go last.
+		merged.sort( ( a, b ) => {
+			var aDate = isDate( a.timestamp ) ? a.timestamp : "";
+			var bDate = isDate( b.timestamp ) ? b.timestamp : "";
+			if ( !len( aDate ) && !len( bDate ) ) return 0;
+			if ( !len( aDate ) ) return 1;
+			if ( !len( bDate ) ) return -1;
+			return dateCompare( aDate, bDate );
+		} );
+
+		return merged;
 	}
 
 }
