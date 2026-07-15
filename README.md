@@ -1,9 +1,49 @@
-# `commandbox-migrations`
+# CommandBox Migrations
 
-## Run your [`cfmigrations`](https://github.com/elpete/cfmigrations) from CommandBox
+CommandBox Migrations is a [CommandBox](https://www.ortussolutions.com/products/commandbox) module that lets you run database migrations directly from the CLI. It wraps the [ColdBox Migrations](https://github.com/coldbox-modules/cfmigrations) library, giving you a powerful, convention-driven way to evolve your database schema — without needing a running web server.
 
+## Features
+
+- **CLI-driven** — Run migrations from anywhere using `migrate up`, `migrate down`, `migrate status`, `migrate fresh`, and more.
+- **Multi-manager support** — Manage multiple named migration configurations (e.g., `default`, `alternate`) from a single project.
+- **Seeding** — Create and run database seeds with `migrate seed create` and `migrate seed run`.
+- **BoxLang support** — Full support for BoxLang projects with automatic detection and `.cbmigrations.json` config.
+- **Environment-aware** — Leverage `${ENV_VAR}` placeholders in your config for database credentials and settings.
+- **Init scaffolding** — Get up and running fast with `migrate init` to generate your config and first migration.
+
+## Upgrading to v6.0.0?
+
+v6 makes `.cbmigrations.json` the **universal standard** config file for **all** projects — BoxLang and CFML alike. The legacy `.cfmigrations.json` is fully deprecated.
+
+### What changed
+
+- **Config file:** `.cbmigrations.json` is now the one and only config file name. If `migrate init` finds only `.cfmigrations.json`, it will prompt you to rename it automatically. If both files exist, `.cbmigrations.json` takes priority.
+- **Migration table:** The default migration table name is now `cbmigrations` (was `cfmigrations` in v4/v5). New projects created with `migrate init` will use `cbmigrations` by default.
+- **BoxLang support:** All the BoxLang support introduced in v5 is now fully mature. The `--boxlang` / `--no-boxlang` flags work identically, but `.cbmigrations.json` is used for both BoxLang and CFML projects alike.
+
+### How to upgrade
+
+1. Rename your `.cfmigrations.json` to `.cbmigrations.json` (or let `migrate init` do it for you).
+2. If you are starting fresh, your migration table will default to `cbmigrations`. If you have an existing `cfmigrations` table, keep the `"migrationsTable": "cfmigrations"` setting in your config.
+
+## Upgrading to v5.0.0?
+
+v5 introduced first-class [BoxLang](https://boxlang.io) support alongside the CFML experience.
+
+### What changed
+
+- **BoxLang detection:** The module now auto-detects BoxLang projects based on the running server engine or the `"language": "boxlang"` key in `box.json`.
+- **Dual config support:** `.cbmigrations.json` was introduced as the BoxLang config file. If both `.cbmigrations.json` and `.cfmigrations.json` exist, the `.cbmigrations.json` file is read first.
+- **Scaffolding:** `migrate create` and `migrate seed create` generate `.bx` files for BoxLang projects (auto-detected, or overridden with `--boxlang` / `--no-boxlang`).
+- **`migrate init --boxlang`:** The init command gained `--boxlang` / `--no-boxlang` flags to override auto-detection.
+
+### How to upgrade
+
+Upgrading from v4 is straightforward — no breaking config changes. If you're a BoxLang user, your project will be auto-detected and you'll get `.bx` scaffolding automatically. If you're a CFML user, nothing changes.
 
 ## Upgrading to v4.0.0?
+
+> ⚠️ **Legacy:** v4 introduced the `.cfmigrations.json` config file. As of v6, the standard config file is `.cbmigrations.json` for all projects. See [Upgrading to v6.0.0?](#upgrading-to-v600) for details.
 
 v4 brings a new configuration structure and file.
 This pairs with new features in CFMigrations to allow for multiple named migration managers and new seeding capabilities.
@@ -11,7 +51,8 @@ Migrations will still run in v4 using the old configuration structure and locati
 
 You can create the new `.cfmigrations.json` config file by running `migrate init`.
 
-The new config file format mirrors `CFMigrations`:
+> In v5, `.cbmigrations.json` was introduced for BoxLang projects alongside `.cfmigrations.json`.
+> As of v6, `.cbmigrations.json` is the universal standard for all projects.
 
 ```json
 {
@@ -22,7 +63,7 @@ The new config file format mirrors `CFMigrations`:
         "properties": {
             "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
-            "migrationsTable": "cfmigrations",
+            "migrationsTable": "cbmigrations",
             "connectionInfo": {
                 "host": "${DB_HOST}",
                 "username": "${DB_USER}",
@@ -46,7 +87,7 @@ More managers can be added as new top-level keys:
         "properties": {
             "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
-            "migrationsTable": "cfmigrations",
+            "migrationsTable": "cbmigrations",
             "connectionInfo": {
                 "host": "${DB_HOST}",
                 "username": "${DB_USER}",
@@ -63,7 +104,7 @@ More managers can be added as new top-level keys:
         "properties": {
             "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
-            "migrationsTable": "cfmigrations2",
+            "migrationsTable": "cbmigrations_alternate",
             "connectionInfo": {
                 "host": "${DB_HOST}",
                 "username": "${DB_USER}",
@@ -84,7 +125,7 @@ Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDisc
 
 ## Setup
 
-You need to create a `.cfmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`:
+You need to create a `.cbmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`.
 
 ```json
 {
@@ -95,7 +136,7 @@ You need to create a `.cfmigrations.json` config file in your application root f
         "properties": {
             "defaultGrammar": "MySQLGrammar@qb",
             "schema": "${DB_SCHEMA}",
-            "migrationsTable": "cfmigrations",
+            "migrationsTable": "cbmigrations",
             "connectionInfo": {
                 "host": "${DB_HOST}",
                 "username": "${DB_USER}",
@@ -128,9 +169,9 @@ The `migrationsDirectory` sets the default location for the migration scripts.  
 The `seedsDirectory` sets the default location for the seeder scripts.  This setting is optional.
 
 > When using MySQL with CommandBox 5 or greater, two additional elements are required in the `connectionInfo` struct:
-> `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`
+> `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`.  These will dissapear in the next iteration as we migrate to BoxLang.
 
-`commandbox-migrations` will create a datasource named `cfmigrations` from the information you specify.
+`commandbox-migrations` will create a datasource named `cbmigrations` from the information you specify.
 You can use this in your queries:
 
 ```js
@@ -143,11 +184,11 @@ queryExecute(
         )
     ",
     [],
-    { datasource = "cfmigrations" }
+    { datasource = "cbmigrations" }
 )
 ```
 
-`commandbox-migrations` will also set `cfmigrations` as the default datasource, so the following will work as well:
+`commandbox-migrations` will also set `cbmigrations` as the default datasource, so the following will work as well:
 
 ```js
 queryExecute( "
@@ -183,10 +224,9 @@ DB_USER=test
 DB_PASSWORD=pass1234
 ```
 
-
 I recommend adding this file to your `.gitignore`
 
-```
+```bash
 .env
 ```
 
@@ -202,49 +242,103 @@ DB_PASSWORD=
 
 You would update your `.gitignore` file to not ignore the `.env.example` file:
 
-```
+```bash
 .env
 !.env.example
 ```
 
+## BoxLang Support
+
+`commandbox-migrations` fully supports [BoxLang](https://boxlang.io) projects:
+
+- Scaffolding: `migrate create` and `migrate seed create` generate `.bx` files
+  instead of `.cfc` files when a BoxLang project is detected (or when `--boxlang` is passed).
+- Config: `.cbmigrations.json` is used for all projects (BoxLang and CFML alike) as of v6.
+
+Whether a project is treated as BoxLang is auto-detected by checking, in order:
+
+1. Whether the running CommandBox server's engine is BoxLang.
+2. Whether `box.json` has `"language": "boxlang"`.
+
+You can skip auto-detection and force the behavior on any of `migrate init`,
+`migrate create`, and `migrate seed create` with the `--boxlang` / `--no-boxlang` flags.
+
 ## Usage
 
-### `migrate init`
+Every command below accepts an optional `manager` argument (defaulting to `default`)
+to target a specific named manager from your config file. See the config examples
+in the upgrade sections above for how to define multiple managers.
 
-Creates the migration config file as `.cfmigrations.json`, if it doesn't already exist.
+### `migrate init [--open] [--boxlang] [--no-boxlang]`
 
-### `migrate install`
+Creates the migration config file (`.cbmigrations.json`) if it doesn't already exist.
+Pass `--boxlang`/`--no-boxlang` to control whether `.bx` or `.cfc` scaffolding is
+generated by `migrate create` and `migrate seed create`.
 
-Installs the migration table in to your database.
+Passing `--open` opens the config file once it's created.
+
+### `migrate install [manager] [--verbose]`
+
+Installs the migration table for the given manager in to your database.
 This migration table keeps track of the ran migrations.
 
-### `migrate create [name]`
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
 
-Creates a migration file with an `up` and `down` method.
+### `migrate status [manager] [--verbose] [--json]`
+
+Displays the current migration status for the given manager — including
+the configured directory, tracking table state, applied/pending counts,
+the current database revision, and a table of all migration files with
+their status.
+
+When the database is unreachable, the command degrades gracefully and
+shows the migration files present on disk with an unknown status.
+
+Passing `--verbose` shows the resolved migrations configuration above the
+status table.
+
+Passing `--json` outputs the status as a JSON object for CI/CD scripting:
+
+```json
+{
+  "manager": "default",
+  "directory": "resources/database/migrations/",
+  "dbAvailable": true,
+  "tableInstalled": true,
+  "applied": 1,
+  "pending": 1,
+  "total": 2,
+  "currentRevision": "2022_11_01_192710_create_users_table",
+  "migrations": [
+    {
+      "componentName": "2022_11_01_192710_create_users_table",
+      "timestamp": "2022-11-01 19:27:10",
+      "migrated": true,
+      "canMigrateUp": false,
+      "canMigrateDown": true
+    }
+  ]
+}
+```
+
+### `migrate create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
+
+Creates a migration file with an `up` and `down` method for the given manager.
 The file name will be prepended with the current timestamp
-in the format that `cfmigrations` expects.
+in the format that `cfmigrations` expects. Creates a `.cfc` file by
+default, or a `.bx` file for BoxLang projects (auto-detected, or
+overridden with `--boxlang`/`--no-boxlang`).
 
-### `migrate up [--once] [--verbose] [--pretend] [file]`
+Passing `--open` opens the migration file once it's created.
 
-Runs all available migrations up. Passing the `--once` flag will only
-run a single migration up (if any are available).
+### `migrate up [manager] [--seed] [--once] [--verbose] [--pretend] [file]`
 
-Passing the `--verbose` flag with show the datasource information passed
-as well as the full stack trace of any errors.
+Runs all available migrations up for the given manager. Passing the `--once`
+flag will only run a single migration up (if any are available).
 
-Passing the `--pretend` flag will not actually run the migrations but
-instead print out the SQL that would have been run to the console.
-
-Passing a `file` is used in conjunction with the `--pretend` flag.
-If provided, the outputted sql will be saved to the file path provided.
-
-> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
-> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
-
-### `migrate down [--once] [--verbose] [--pretend] [file]`
-
-Runs all available migrations down. Passing the `--once` flag will only
-run a single migration down (if any are available).
+Passing the `--seed` flag will run all seeders for the manager after the
+migrations are applied (equivalent to running `migrate seed run` afterward).
 
 Passing the `--verbose` flag with show the datasource information passed
 as well as the full stack trace of any errors.
@@ -258,28 +352,65 @@ If provided, the outputted sql will be saved to the file path provided.
 > **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
 > Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
 
-### `migrate refresh`
+### `migrate down [manager] [--once] [--verbose] [--pretend] [file]`
 
-Runs all available migrations down and then runs all migrations up.
+Runs all available migrations down for the given manager. Passing the
+`--once` flag will only run a single migration down (if any are available).
 
-### `migrate reset`
+Passing the `--verbose` flag with show the datasource information passed
+as well as the full stack trace of any errors.
 
-Clears out all objects from the database, including the `cfmigrations` table.
-Use this when your database is in an inconsistent state in development.
+Passing the `--pretend` flag will not actually run the migrations but
+instead print out the SQL that would have been run to the console.
 
-### `migrate fresh`
+Passing a `file` is used in conjunction with the `--pretend` flag.
+If provided, the outputted sql will be saved to the file path provided.
 
-Runs `migrate reset`, `migrate install`, and `migrate up` to give you
-a fresh copy of your migrated database.
+> **WARNING: `--pretend` only captures SQL from `schema` (SchemaBuilder) and `qb` (QueryBuilder) calls.**
+> Migrations that use `queryExecute()` directly are **not intercepted** — those queries **will execute against your database** even when `--pretend` is passed. If your migrations use raw `queryExecute()` calls, do not rely on `--pretend` to prevent changes.
 
-### `migrate uninstall`
+### `migrate refresh [manager] [--seed] [--verbose]`
 
-Removes the `cfmigrations` table after running down any ran migrations.
+Runs all available migrations down and then runs all migrations up for the
+given manager (delegates to `migrate down` and `migrate up`, forwarding
+`manager`, `--seed`, and `--verbose`).
 
-### `migrate seed create [name]`
+### `migrate reset [manager] [--verbose]`
 
-Creates a new Seeder file.
+Clears out all objects from the database, including the `cbmigrations` table,
+for the given manager. Use this when your database is in an inconsistent
+state in development.
 
-### `migrate seed run`
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
 
-Runs one or all Seeders.
+### `migrate fresh [manager] [--seed] [--verbose]`
+
+Runs `migrate reset`, `migrate install`, and `migrate up` (forwarding
+`manager`, `--seed`, and `--verbose`) to give you a fresh copy of your
+migrated database.
+
+### `migrate uninstall [manager] [--verbose] [--force]`
+
+Removes the `cbmigrations` table for the given manager after running down
+any ran migrations. Prompts for confirmation before uninstalling unless
+`--force` is passed.
+
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.
+
+### `migrate seed create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
+
+Creates a new Seeder file for the given manager. Creates a `.cfc` file by
+default, or a `.bx` file for BoxLang projects (auto-detected, or
+overridden with `--boxlang`/`--no-boxlang`).
+
+Passing `--open` opens the seeder file once it's created.
+
+### `migrate seed run [name] [manager] [--verbose]`
+
+Runs one or all Seeders for the given manager. Pass `name` to only run a
+single named seeder; omit it to run all seeders.
+
+Passing the `--verbose` flag will show the resolved migrations config
+as well as the full stack trace of any errors.

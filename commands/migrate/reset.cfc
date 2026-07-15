@@ -1,28 +1,46 @@
 /**
- * Resets the database by clearing out all objects
+ * Reset the database by dropping all tables, views, and other schema objects.
+ *
+ * WARNING: This is a destructive operation! All schema objects will be dropped.
+ * No migration `down()` methods are called — the database is wiped directly.
+ *
+ * This command is used internally by `migrate fresh`. You can run it standalone
+ * when you want to clear the database without immediately re-running migrations.
+ *
+ * {code:bash}
+ * ## Drop all database objects
+ * migrate reset
+ *
+ * ## Reset a named manager's database
+ * migrate reset --manager=secondary
+ *
+ * ## Reset with verbose error output
+ * migrate reset --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
+     * @verbose          If true, errors output a full stack trace.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
-    function run( string manager = "default", boolean verbose = false ) {
-        setup( arguments.manager );
+    function run( string manager = "default", boolean verbose = false, boolean installDrivers = true ) {
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( arguments.verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.blackOnYellowLine( "cbmigrations info:" );
+            print.line( getMigrationsInfo() ).line();
         }
 
         try {
             variables.migrationService.reset();
-            print.greenLine( "Database reset!" );
+            print.greenLine( "🔄 Database reset!" );
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.whiteOnRedLine( "❌ Error when trying to reset the database:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

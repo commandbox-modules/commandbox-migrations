@@ -1,28 +1,53 @@
 /**
  * Rollback one or all of the migrations already ran against your database.
+ *
+ * Migrations are rolled back in reverse chronological order (newest first).
+ * Each migration's `down()` method is called to reverse the changes.
+ *
+ * {code:bash}
+ * ## Roll back all applied migrations
+ * migrate down
+ *
+ * ## Roll back only the last applied migration
+ * migrate down --once
+ *
+ * ## Preview rollback SQL without executing
+ * migrate down --pretend
+ *
+ * ## Save the pretend SQL output to a file
+ * migrate down --pretend --file=rollback.sql
+ *
+ * ## Roll back migrations for a named manager
+ * migrate down --manager=secondary
+ *
+ * ## Roll back with verbose error output
+ * migrate down --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @once.hint          Only rollback a single migration.
-     * @manager.hint       The Migration Manager to use.
+     * @once             Only rollback a single migration.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @verbose          If true, errors output a full stack trace.
+     * @pretend          If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file             If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
     function run(
         boolean once = false,
         string manager = "default",
         boolean verbose = false,
         boolean pretend = false,
-        string file
+        string file,
+        boolean installDrivers = true
     ) {
-        setup( arguments.manager );
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers )
 
         if ( arguments.verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.blackOnYellowLine( "cbmigrations info:" );
+            print.line( getMigrationsInfo() ).line();
         }
 
         pagePoolClear();
@@ -33,19 +58,19 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             checkForInstalledMigrationTable();
 
             if ( !variables.migrationService.hasMigrationsToRun( "down" ) ) {
-                print.line().yellowLine( "No migrations to rollback." ).line();
+                print.line().yellowLine( "📭 No migrations to rollback." ).line();
             } else if ( arguments.once ) {
                 variables.migrationService.runNextMigration(
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏪ Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Rolled back:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to roll back:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -68,13 +93,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     direction = "down",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Rolling back: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏪ Rolling back: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Rolled back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Rolled back:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to roll back:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to roll back:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -96,7 +121,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to roll back #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

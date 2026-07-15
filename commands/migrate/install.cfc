@@ -1,36 +1,52 @@
 /**
- * Installs the cfmigrations table in to your database.
+ * Install the migrations tracking table into your database.
  *
- * The cfmigrations table keeps track of the migrations ran against your database.
- * It must be installed before running any migrations.
+ * The migrations table records every migration that has been applied, allowing
+ * cbmigrations to know which migrations are pending and which have been run.
+ * This command must be run before executing `migrate up` for the first time.
+ *
+ * Running this command when the table already exists will display a message
+ * and exit gracefully without making any changes.
+ *
+ * {code:bash}
+ * ## Install the migrations table
+ * migrate install
+ *
+ * ## Install for a named manager
+ * migrate install --manager=secondary
+ *
+ * ## Install with verbose output
+ * migrate install --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors will output a full stack trace.
+     * @verbose          If true, errors will output a full stack trace.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
-    function run( string manager = "default", boolean verbose = false ) {
-        setup( arguments.manager );
+    function run( string manager = "default", boolean verbose = false, boolean installDrivers = true ) {
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.blackOnYellowLine( "cbmigrations info:" );
+            print.line( getMigrationsInfo() ).line();
         }
 
         try {
             if ( variables.migrationService.isReady() ) {
-                print.line( "Migration table already installed." );
+                print.yellowLine( "ℹ️ Migration table already installed." );
                 return;
             }
 
             variables.migrationService.install();
-            print.line( "Migration table installed!" ).line();
+            print.greenLine( "✅ Migration table installed!" ).line();
         } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to reset the database:" );
+                    print.whiteOnRedLine( "❌ Error when trying to install the migration table:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;

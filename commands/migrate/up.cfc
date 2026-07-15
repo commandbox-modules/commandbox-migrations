@@ -1,16 +1,43 @@
 /**
  * Apply one or all pending migrations against your database.
+ *
+ * Migrations are applied in chronological order based on their timestamp prefix.
+ * The migrations table must be installed first via `migrate install`.
+ *
+ * {code:bash}
+ * ## Run all pending migrations
+ * migrate up
+ *
+ * ## Apply only the next pending migration
+ * migrate up --once
+ *
+ * ## Preview SQL without executing (dry run)
+ * migrate up --pretend
+ *
+ * ## Save the pretend SQL output to a file
+ * migrate up --pretend --file=schema.sql
+ *
+ * ## Run migrations and then seed the database
+ * migrate up --seed
+ *
+ * ## Run migrations for a named manager
+ * migrate up --manager=secondary
+ *
+ * ## Run with verbose error output
+ * migrate up --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @seed.hint          If true, runs all seeders for the manager after creating a fresh database.
-     * @once.hint          Only apply a single migration.
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @pretend.hint       If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
-     * @file.hint          If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @seed             If true, runs all seeders for the manager after creating a fresh database.
+     * @once             Only apply a single migration.
+     * @verbose          If true, errors output a full stack trace.
+     * @pretend          If true, only pretends to run the query.  The SQL that would have been run is printed to the console.
+     * @file             If provided, outputs the SQL that would have been run to the file. Only applies when running `pretend`.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
     function run(
         string manager = "default",
@@ -18,13 +45,14 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         boolean once = false,
         boolean verbose = false,
         boolean pretend = false,
-        string file
+        string file,
+        boolean installDrivers = true
     ) {
-        setup( arguments.manager );
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( arguments.verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.blackOnYellowLine( "cbmigrations info:" );
+            print.line( getMigrationsInfo() ).line();
         }
 
         pagePoolClear();
@@ -35,19 +63,19 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             checkForInstalledMigrationTable();
 
             if ( !migrationService.hasMigrationsToRun( "up" ) ) {
-                print.line().yellowLine( "No migrations to run." ).line();
-            } else if ( once ) {
+                print.line().yellowLine( "📭 No migrations to run." ).line();
+            } else if ( arguments.once ) {
                 migrationService.runNextMigration(
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏫ Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Migrated:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to migrate:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to migrate:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -70,13 +98,13 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     direction = "up",
                     preProcessHook = ( migration ) => {
                         currentlyRunningMigration = migration;
-                        print.yellow( "Migrating: " ).line( migration.componentName ).toConsole();
+                        print.yellow( "⏫ Migrating: " ).line( migration.componentName ).toConsole();
                     },
                     postProcessHook = ( migration, schema, qb ) => {
                         if (!pretend) {
-                            print.green( "Migrated:  " ).line( migration.componentName ).toConsole();
+                            print.green( "✅ Migrated:  " ).line( migration.componentName ).toConsole();
                         } else {
-                            print.green( "Pretended to migrate:  " ).line( migration.componentName ).toConsole();
+                            print.green( "🧪 Pretended to migrate:  " ).line( migration.componentName ).toConsole();
                             print.line();
                             for ( var q in schema.getQueryLog() ) {
                                 var inlineSql = qb.getUtils().replaceBindings( q.sql, q.bindings, true );
@@ -98,8 +126,8 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         } catch ( any e ) {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
-                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                    print.whiteOnRedLine( "❌ Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ?: "" ) ).toAnsi() );
                 }
                 rethrow;
             }
@@ -113,10 +141,10 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     var newline = "#chr( 10 )##chr( 13 )#";
                     return error(
                         len( e.detail ) ? e.detail : e.message,
-                        "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ) ).toAnsi()#"
+                        "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ?: "" ) ).toAnsi()#"
                     );
                 default:
-                    rethrow;
+                    throw( e )
             }
         }
 
@@ -128,7 +156,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
         }
 
         if ( arguments.pretend && !isNull( arguments.file ) ) {
-            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="666" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
+            file action="write" file="#fileSystemUtil.resolvePath( arguments.file )#" mode="644" output="#trim( statements.toList( ";" & chr( 10 ) & chr( 10 ) ) )#";
             print.whiteOnBlueLine( "Wrote SQL to file: #arguments.file#" );
         }
 

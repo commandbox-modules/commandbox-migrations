@@ -1,47 +1,72 @@
 /**
- * Uninstalls the cfmigrations table from your database.
+ * Uninstall the migrations tracking table from your database.
  *
- * The cfmigrations table keeps track of the migrations ran against your database.
- * Uninstall it when you are removing cfmigrations from your application.
+ * WARNING: Uninstalling will also run all your migrations DOWN before removing
+ * the tracking table. This means all applied migrations will be rolled back
+ * and all data managed by those migrations will be lost.
+ *
+ * Use this command when you are fully removing migrations from your application
+ * or want a completely clean slate. You will be asked to confirm before proceeding
+ * unless the --force flag is provided.
+ *
+ * {code:bash}
+ * ## Uninstall with confirmation prompt
+ * migrate uninstall
+ *
+ * ## Uninstall without confirmation
+ * migrate uninstall --force
+ *
+ * ## Uninstall a named manager
+ * migrate uninstall --manager=secondary
+ *
+ * ## Uninstall with verbose error output
+ * migrate uninstall --verbose
+ * {code}
  */
 component extends="commandbox-migrations.models.BaseMigrationCommand" {
 
     /**
-     * @manager.hint       The Migration Manager to use.
+     * @manager          The Migration Manager to use.
      * @manager.optionsUDF completeManagers
-     * @verbose.hint       If true, errors output a full stack trace.
-     * @force.hint         If true, will not wait for confirmation to uninstall cfmigrations.
+     * @verbose          If true, errors output a full stack trace.
+     * @force            If true, will not wait for confirmation to uninstall cbmigrations.
+     * @installDrivers   If true, auto-install the BoxLang JDBC driver module. Default: true.
      */
-    function run( string manager = "default", boolean verbose = false, boolean force = false ) {
-        setup( arguments.manager );
+    function run(
+        string manager = "default",
+        boolean verbose = false,
+        boolean force = false,
+        boolean installDrivers = true
+    ) {
+        setup( manager: arguments.manager, installDrivers = arguments.installDrivers );
 
         if ( arguments.verbose ) {
-            print.blackOnYellowLine( "cfmigrations info:" );
-            print.line( getCFMigrationsInfo() ).line();
+            print.blackOnYellowLine( "cbmigrations info:" );
+            print.line( getMigrationsInfo() ).line();
         }
 
         pagePoolClear();
 
         try {
             if ( !variables.migrationService.isReady() ) {
-                print.line( "No Migration table detected." );
+                print.yellowLine( "📭 No Migration table detected." );
                 return;
             }
 
             if (
                 arguments.force || confirm(
-                    "Uninstalling cfmigrations will also run all your migrations down. Are you sure you want to continue? [y/n]"
+                    "Uninstalling cbmigrations will also run all your migrations down. Are you sure you want to continue? [y/n]"
                 )
             ) {
                 variables.migrationService.uninstall();
-                print.line( "Migration table uninstalled!" ).line();
+                print.greenLine( "🗑️ Migration table uninstalled!" ).line();
             } else {
-                print.line( "Aborting uninstall process." );
+                print.yellowLine( "⏭️ Aborting uninstall process." );
             }
         } catch ( any e ) {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
-                    print.whiteOnRedLine( "Error when trying to run #currentlyRunningMigration.componentName#:" );
+                    print.whiteOnRedLine( "❌ Error when trying to uninstall #currentlyRunningMigration.componentName#:" );
                     print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
                 }
                 rethrow;
