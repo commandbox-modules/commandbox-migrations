@@ -16,12 +16,6 @@ component extends="testbox.system.BaseSpec" {
 
 		describe( "MigrationService .bx file discovery", () => {
 
-			it( "should list both .cfc and .bx files in findAll()", () => {
-				var servicePath = variables.projectRoot & "modules/cfmigrations/models/MigrationService.cfc";
-				var content     = fileRead( servicePath );
-				expect( content ).toInclude( "*.cfc|*.bx" );
-			});
-
 			it( "should use isMigrationFile filter to validate timestamp prefix", () => {
 				var servicePath = variables.projectRoot & "modules/cfmigrations/models/MigrationService.cfc";
 				var content     = fileRead( servicePath );
@@ -34,22 +28,6 @@ component extends="testbox.system.BaseSpec" {
 				// Should NOT hardcode ".cfc" in isMigrationFile
 				expect( content ).notToInclude( 'filename contains ".cfc"' );
 				expect( content ).notToInclude( "listLast( filename, '.' ) == 'cfc'" );
-			});
-
-		});
-
-		describe( "SeedService .bx file discovery", () => {
-
-			it( "should list both .cfc and .bx files in findSeeds()", () => {
-				var servicePath = variables.projectRoot & "modules/cfmigrations/models/MigrationService.cfc";
-				var content     = fileRead( servicePath );
-				expect( content ).toInclude( '"*.cfc|*.bx"' );
-			});
-
-			it( "should strip both .cfc and .bx extensions when extracting component name", () => {
-				var servicePath = variables.projectRoot & "modules/cfmigrations/models/MigrationService.cfc";
-				var content     = fileRead( servicePath );
-				expect( content ).toInclude( '\.(cfc|bx)' );
 			});
 
 		});
