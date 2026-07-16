@@ -50,6 +50,7 @@
         "tests",
         "testbox",
         "boxlang_modules",
-        "modules"
+        "modules",
+        "skills-lock.json"
     ],
 }
