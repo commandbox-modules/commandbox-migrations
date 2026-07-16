@@ -44,5 +44,12 @@
         "cfmigrations":"modules/cfmigrations/",
         "sqlformatter":"modules/sqlformatter/",
         "testbox":"testbox/"
-    }
+    },
+    "ignore":[
+        "**/.*",
+        "tests",
+        "testbox",
+        "boxlang_modules",
+        "modules"
+    ],
 }
