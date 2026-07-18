@@ -136,6 +136,18 @@ component extends="testbox.system.BaseSpec" {
 
 		});
 
+		describe( "BoxLang JDBC driver loading", () => {
+
+			it( "loads drivers from the directory where they are installed", () => {
+				var commandPath = variables.projectRoot & "models/BaseMigrationCommand.cfc";
+				var content     = fileRead( commandPath );
+
+				expect( content ).toInclude( "loadBoxLangDrivers( modulesDir )" );
+				expect( content ).toInclude( "void function loadBoxLangDrivers( required string modulesDir )" );
+			} );
+
+		} );
+
 	}
 
 }

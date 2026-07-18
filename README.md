@@ -263,6 +263,43 @@ Whether a project is treated as BoxLang is auto-detected by checking, in order:
 You can skip auto-detection and force the behavior on any of `migrate init`,
 `migrate create`, and `migrate seed create` with the `--boxlang` / `--no-boxlang` flags.
 
+### BoxLang JDBC driver management
+
+BoxLang JDBC drivers are installed and loaded from the module-owned
+`boxlang_modules/` directory. Database commands automatically install the driver
+detected from the manager's `connectionInfo` when it is missing.
+
+Use the driver commands to inspect, repair, or remove the managed drivers:
+
+```bash
+# List installed BoxLang JDBC drivers
+migrate drivers list
+
+# List drivers as JSON
+migrate drivers list --json
+
+# Force-install the driver detected from the default manager
+migrate drivers install
+
+# Force-install a specific driver
+migrate drivers install mysql
+migrate drivers install bx-postgresql
+
+# Force-install every supported driver
+migrate drivers install --all
+
+# Remove one driver, with confirmation
+migrate drivers remove mysql
+
+# Remove all managed drivers without confirmation
+migrate drivers remove --force
+```
+
+When no driver name is supplied to `migrate drivers install`, the command uses
+the selected manager's `connectionInfo`. Use `--manager=secondary` to select a
+different manager. Supported driver names include MySQL, MariaDB, PostgreSQL,
+Microsoft SQL Server, Oracle, SQLite, Derby, and HyperSQL.
+
 ## Usage
 
 Every command below accepts an optional `manager` argument (defaulting to `default`)
@@ -321,6 +358,24 @@ Passing `--json` outputs the status as a JSON object for CI/CD scripting:
   ]
 }
 ```
+
+### `migrate drivers list [--json]`
+
+Lists the installed BoxLang JDBC drivers managed by `commandbox-migrations`.
+Passing `--json` outputs the driver directory and driver slugs as JSON.
+
+### `migrate drivers install [driver] [--all] [--manager=manager]`
+
+Force-installs a BoxLang JDBC driver. Without a driver name, the driver is
+detected from the selected migration manager's `connectionInfo`. Pass `--all`
+to force-install every supported driver, or provide a driver name such as
+`mysql` or `bx-postgresql`.
+
+### `migrate drivers remove [driver] [--force]`
+
+Removes one named BoxLang JDBC driver, or all managed drivers when no driver
+name is provided. The command prompts for confirmation unless `--force` is
+passed.
 
 ### `migrate create [name] [manager] [--open] [--boxlang] [--no-boxlang]`
 

@@ -185,6 +185,36 @@ component extends="testbox.system.BaseSpec" {
 
 		} );
 
+		describe( "BoxLang driver management commands", () => {
+
+			it( "should provide list, install, and remove commands", () => {
+				var commands = [ "list.cfc", "install.cfc", "remove.cfc" ];
+
+				for ( var cmd in commands ) {
+					var commandPath = variables.projectRoot & "commands/migrate/drivers/#cmd#";
+					expect( fileExists( commandPath ) ).toBeTrue();
+					expect( fileRead( commandPath ) ).toInclude( "BaseMigrationCommand" );
+				}
+			} );
+
+			it( "should force-install drivers through the shared driver helper", () => {
+				var commandPath = variables.projectRoot & "commands/migrate/drivers/install.cfc";
+				var content     = fileRead( commandPath );
+
+				expect( content ).toInclude( "boolean all" );
+				expect( content ).toInclude( "installBoxLangDriver( slug, true )" );
+			} );
+
+			it( "should accept an optional driver for targeted removal", () => {
+				var commandPath = variables.projectRoot & "commands/migrate/drivers/remove.cfc";
+				var content     = fileRead( commandPath );
+
+				expect( content ).toInclude( 'string driverName = ""' );
+				expect( content ).toInclude( "removeBoxLangDriver( requestedSlug )" );
+			} );
+
+		} );
+
 		describe( "Common error handling patterns", () => {
 
 			it( "commands with direct migration service calls should have try/catch blocks", () => {

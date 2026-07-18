@@ -157,21 +157,7 @@ component {
      * driver could be determined.
      */
     string function detectBoxLangDriverSlug( required struct connectionInfo ) {
-        var typeMap = {
-            "mysql"      : "bx-mysql",
-            "mariadb"    : "bx-mariadb",
-            "postgresql" : "bx-postgresql",
-            "pgsql"      : "bx-postgresql",
-            "mssql"      : "bx-mssql",
-            "sqlserver"  : "bx-mssql",
-            "oracle"     : "bx-oracle",
-            "oracledb"   : "bx-oracle",
-            "sqlite"     : "bx-sqlite",
-            "derby"      : "bx-derby",
-            "h2"         : "bx-hypersql",
-            "hypersql"   : "bx-hypersql",
-            "hsqldb"     : "bx-hypersql"
-        }
+        var typeMap = getBoxLangDriverMap();
 
         // 1. Explicit driver key wins
         if ( arguments.connectionInfo.keyExists( "driver" ) && typeMap.keyExists( arguments.connectionInfo.driver) ) {
@@ -204,8 +190,29 @@ component {
      * @slug The ForgeBox slug of the driver (e.g. `bx-mysql`).
      */
     void function ensureBoxLangDriver( required string slug ) {
-        var modulesDir = variables.moduleConfig.path & "/boxlang_modules"
-        var targetModuleDir = modulesDir & "/" & arguments.slug
+        installBoxLangDriver( arguments.slug );
+    }
+
+    /**
+     * Installs and loads a supported BoxLang JDBC driver module.
+     *
+     * @slug  The ForgeBox slug of the driver (e.g. `bx-mysql`).
+     * @force If true, removes the existing module before installing it again.
+     */
+    void function installBoxLangDriver( required string slug, boolean force = false ) {
+        var modulesDir = getBoxLangDriversDirectory();
+        var targetModuleDir = modulesDir & "/" & arguments.slug;
+
+        if ( !arrayFindNoCase( getSupportedBoxLangDriverSlugs(), arguments.slug ) ) {
+            throw(
+                type = "UnsupportedBoxLangDriver",
+                message = "Unsupported BoxLang JDBC driver [#arguments.slug#]."
+            );
+        }
+
+        if ( arguments.force && directoryExists( targetModuleDir ) ) {
+            directoryDelete( targetModuleDir, true );
+        }
 
         if ( !directoryExists( targetModuleDir ) ) {
             variables.print
@@ -223,7 +230,81 @@ component {
             }
         }
 
-        loadBoxLangDrivers();
+        loadBoxLangDrivers( modulesDir );
+    }
+
+    /**
+     * Returns the module-owned directory used for BoxLang JDBC drivers.
+     */
+    string function getBoxLangDriversDirectory() {
+        return variables.moduleConfig.path & "/boxlang_modules";
+    }
+
+    /**
+     * Returns the supported BoxLang JDBC driver ForgeBox slugs.
+     */
+    array function getSupportedBoxLangDriverSlugs() {
+        var slugs = {};
+        for ( var slug in getBoxLangDriverMap().valueArray() ) {
+            slugs[ slug ] = true;
+        }
+        return slugs.keyArray().sort( "textnocase" );
+    }
+
+    /**
+     * Returns the mapping between connection types and BoxLang JDBC modules.
+     */
+    private struct function getBoxLangDriverMap() {
+        return {
+            "mysql"      : "bx-mysql",
+            "mariadb"    : "bx-mariadb",
+            "postgresql" : "bx-postgresql",
+            "pgsql"      : "bx-postgresql",
+            "mssql"      : "bx-mssql",
+            "sqlserver"  : "bx-mssql",
+            "oracle"     : "bx-oracle",
+            "oracledb"   : "bx-oracle",
+            "sqlite"     : "bx-sqlite",
+            "derby"      : "bx-derby",
+            "h2"         : "bx-hypersql",
+            "hypersql"   : "bx-hypersql",
+            "hsqldb"     : "bx-hypersql"
+        };
+    }
+
+    /**
+     * Returns the installed BoxLang JDBC driver module slugs.
+     */
+    array function getInstalledBoxLangDriverSlugs() {
+        var modulesDir = getBoxLangDriversDirectory();
+        if ( !directoryExists( modulesDir ) ) {
+            return [];
+        }
+
+        return directoryList( modulesDir, false, "array", "bx-*")
+            .filter( ( path ) => directoryExists( path ) )
+            .map( ( path ) => listLast( replace( path, "\\", "/", "all" ), "/" ) )
+            .sort( "textnocase" );
+    }
+
+    /**
+     * Removes all installed BoxLang JDBC driver modules owned by this module.
+     */
+    void function removeAllBoxLangDrivers() {
+        var modulesDir = getBoxLangDriversDirectory();
+        for ( var slug in getInstalledBoxLangDriverSlugs() ) {
+            removeBoxLangDriver( slug );
+        }
+    }
+
+    /**
+     * Removes one installed BoxLang JDBC driver module.
+     */
+    void function removeBoxLangDriver( required string slug ) {
+        var targetModuleDir = getBoxLangDriversDirectory() & "/" & arguments.slug;
+        if ( directoryExists( targetModuleDir ) ) {
+            directoryDelete( targetModuleDir, true );
+        }
     }
 
     /**
@@ -231,8 +312,7 @@ component {
      * runtime. Calling `loadModules` on the parent directory is safe and
      * idempotent — already-registered modules are skipped.
      */
-    void function loadBoxLangDrivers() {
-        var modulesDir = getCWD() & "/boxlang_modules"
+    void function loadBoxLangDrivers( required string modulesDir ) {
         if ( !directoryExists( modulesDir ) ) {
             return;
         }

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `migrate drivers list` to show installed BoxLang JDBC drivers.
+- Added `migrate drivers install` to force-install the configured driver, with support for a named driver and `--all`.
+- Added `migrate drivers remove` to remove all managed drivers or a single named driver.
+
 ### Fixed
 
 - parser fix due to nested rethrow on BoxLang
