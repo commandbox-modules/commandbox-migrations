@@ -12,7 +12,7 @@ CommandBox Migrations is a [CommandBox](https://www.ortussolutions.com/products/
 - **Environment-aware** — Leverage `${ENV_VAR}` placeholders in your config for database credentials and settings.
 - **Init scaffolding** — Get up and running fast with `migrate init` to generate your config and first migration.
 
-Please note that the CFML version of CommandBox is reaching end of life soon, so we would encourage you to start using the BoxLang version base of CommandBox via the `bx-cli` module: https://forgebox.io/view/bx-cli
+Please note that the CFML version of CommandBox is reaching end of life soon, so we would encourage you to start using the BoxLang version base of CommandBox via the `bx-cli` module: https://forgebox.io/view/bx-cli with this module. You can install it via the following command:
 
 ```bash
 # Install using the BoxLang installer scripts
@@ -28,6 +28,7 @@ v6 makes `.cbmigrations.json` the **universal standard** config file for **all**
 - **Config file:** `.cbmigrations.json` is now the one and only config file name. If `migrate init` finds only `.cfmigrations.json`, it will prompt you to rename it automatically. If both files exist, `.cbmigrations.json` takes priority.
 - **Migration table:** The default migration table name is now `cbmigrations` (was `cfmigrations` in v4/v5). New projects created with `migrate init` will use `cbmigrations` by default.
 - **BoxLang support:** All the BoxLang support introduced in v5 is now fully mature. The `--boxlang` / `--no-boxlang` flags work identically, but `.cbmigrations.json` is used for both BoxLang and CFML projects alike.
+- This module is now preferred to run on the BoxLang version of CommandBox as the CFML version will be end of life soon.
 
 ### How to upgrade
 
@@ -133,7 +134,7 @@ Make sure to append `@qb` to the end of any qb-supplied grammars, like `AutoDisc
 
 ## Setup
 
-You need to create a `.cbmigrations.json` config file in your application root folder. You can do this easily by running `migrate init`.
+You need to create a `.cbmigrations.json` config file in your application root folder or just run `migrate init`.
 
 ```json
 {
@@ -162,7 +163,7 @@ Additional managers can be added as new top-level keys.
 The `defaultGrammar` sets the correct Database Grammar for `qb` to use to build your schema.
 Available grammar options can be found in the [qb documentation](https://qb.ortusbooks.com).
 
-> You don't have to use qb's `SchemaBuilder` to use `cfmigrations`.
+> You don't have to use qb's `SchemaBuilder` to use `migrations`.
 > Just run your own migrations using `queryExecute` and you can have complete control over your sql.
 
 The `schema` represents the schema to install the migrations in.  This is a very important field,
@@ -170,14 +171,14 @@ especially for database setups hosting mutiple schemas. Without it, `commandbox-
 be unable to correct detect the migrations table.  It may tell you that the migration table is
 already installed when it isn't because it detects it in a different schema.
 
-The `connectionInfo` object is the information to create an on the fly connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in Lucee. (Note: it must be Lucee compatible since that is what CommandBox runs on under-the-hood.)
+The `connectionInfo` object is the information to create an on the fly datasource connection in CommandBox to run your migrations. This is the same struct you would use to add an application datasource in BoxLang.
 
 The `migrationsDirectory` sets the default location for the migration scripts.  This setting is optional.
 
 The `seedsDirectory` sets the default location for the seeder scripts.  This setting is optional.
 
-> When using MySQL with CommandBox 5 or greater, two additional elements are required in the `connectionInfo` struct:
-> `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`.  These will dissapear in the next iteration as we migrate to BoxLang.
+> When using MySQL with the CFML version of CommandBox, two additional elements are required in the `connectionInfo` struct:
+> `"bundleName":"com.mysql.cj"` and `"bundleVersion":"8.0.15"`.  These are not needed in BoxLang as the JDBC driver is managed by the module.
 
 `commandbox-migrations` will create a datasource named `cbmigrations` from the information you specify.
 You can use this in your queries:
@@ -257,7 +258,7 @@ You would update your `.gitignore` file to not ignore the `.env.example` file:
 
 ## BoxLang Support
 
-`commandbox-migrations` fully supports [BoxLang](https://boxlang.io) projects:
+`commandbox-migrations` fully supports [BoxLang](https://boxlang.io) projects and can preferrably run on the BoxLang version of CommandBox. The module will auto-detect whether your project is BoxLang or CFML and adjust its behavior accordingly.
 
 - Scaffolding: `migrate create` and `migrate seed create` generate `.bx` files
   instead of `.cfc` files when a BoxLang project is detected (or when `--boxlang` is passed).
@@ -271,11 +272,11 @@ Whether a project is treated as BoxLang is auto-detected by checking, in order:
 You can skip auto-detection and force the behavior on any of `migrate init`,
 `migrate create`, and `migrate seed create` with the `--boxlang` / `--no-boxlang` flags.
 
-### BoxLang JDBC driver management
+### BoxLang JDBC driver management (BoxLang Only)
 
 BoxLang JDBC drivers are installed and loaded from the module-owned
 `boxlang_modules/` directory. Database commands automatically install the driver
-detected from the manager's `connectionInfo` when it is missing.
+detected from the manager's `connectionInfo` when it is missing or you can force-install a specific driver with `migrate drivers install <driver>`. You can also remove drivers with `migrate drivers remove <driver>`.
 
 Use the driver commands to inspect, repair, or remove the managed drivers:
 
