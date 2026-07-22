@@ -143,9 +143,9 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         len( e.detail ) ? e.detail : e.message,
                         "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ?: "" ) ).toAnsi()#"
                     );
-                default:
-                    throw( e )
             }
+
+            rethrow;
         }
 
         if ( arguments.seed ) {

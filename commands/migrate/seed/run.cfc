@@ -86,9 +86,9 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                         len( e.detail ) ? e.detail : e.message,
                         "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ?: "" ) ).toAnsi()#"
                     );
-                default:
-                    rethrow;
             }
+
+            rethrow;
         }
 
         if ( currentlyRunningSeeder == "UNKNOWN" ) {
