@@ -1,15 +1,23 @@
 # CommandBox Migrations
 
-CommandBox Migrations is a [CommandBox](https://www.ortussolutions.com/products/commandbox) module that lets you run database migrations directly from the CLI. It wraps the [ColdBox Migrations](https://github.com/coldbox-modules/cfmigrations) library, giving you a powerful, convention-driven way to evolve your database schema — without needing a running web server.
+CommandBox Migrations is a [CommandBox](https://www.ortussolutions.com/products/commandbox) module that lets you manage and run database migrations directly from the CLI. It wraps the [ColdBox Migrations](https://github.com/coldbox-modules/cfmigrations) library, giving you a powerful, convention-driven way to evolve your database schema — without needing a running web server.
 
 ## Features
 
 - **CLI-driven** — Run migrations from anywhere using `migrate up`, `migrate down`, `migrate status`, `migrate fresh`, and more.
 - **Multi-manager support** — Manage multiple named migration configurations (e.g., `default`, `alternate`) from a single project.
 - **Seeding** — Create and run database seeds with `migrate seed create` and `migrate seed run`.
-- **BoxLang support** — Full support for BoxLang projects with automatic detection and `.cbmigrations.json` config.
+- **Driver management** — Install, list, and remove BoxLang JDBC drivers with `migrate drivers install`, `migrate drivers list`, and `migrate drivers remove`.
+- **BoxLang Prime** — Full support for BoxLang projects with automatic detection and `.cbmigrations.json` config.
 - **Environment-aware** — Leverage `${ENV_VAR}` placeholders in your config for database credentials and settings.
 - **Init scaffolding** — Get up and running fast with `migrate init` to generate your config and first migration.
+
+Please note that the CFML version of CommandBox is reaching end of life soon, so we would encourage you to start using the BoxLang version base of CommandBox via the `bx-cli` module: https://forgebox.io/view/bx-cli
+
+```bash
+# Install using the BoxLang installer scripts
+install-bx-module bx-cli
+```
 
 ## Upgrading to v6.0.0?
 
