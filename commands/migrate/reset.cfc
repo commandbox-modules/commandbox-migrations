@@ -41,7 +41,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "❌ Error when trying to reset the database:" );
-                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ?: "" ) ).toAnsi() );
                 }
                 rethrow;
             }
@@ -56,7 +56,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
                     var newline = "#chr( 10 )##chr( 13 )#";
                     return error(
                         len( e.detail ) ? e.detail : e.message,
-                        "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ) ).toAnsi()#"
+                        "#templateName##newline##variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.queryError ?: "" ) ).toAnsi()#"
                     );
             }
 

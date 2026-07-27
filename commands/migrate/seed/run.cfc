@@ -70,7 +70,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             if ( arguments.verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "❌ Error when trying to seed #currentlyRunningSeeder#:" );
-                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ?: "" ) ).toAnsi() );
                 }
                 rethrow;
             }

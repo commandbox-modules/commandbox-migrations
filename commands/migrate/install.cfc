@@ -47,7 +47,7 @@ component extends="commandbox-migrations.models.BaseMigrationCommand" {
             if ( verbose ) {
                 if ( structKeyExists( e, "Sql" ) ) {
                     print.whiteOnRedLine( "❌ Error when trying to install the migration table:" );
-                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ) ).toAnsi() );
+                    print.line( variables.sqlHighlighter.highlight( variables.sqlFormatter.format( e.Sql ?: "" ) ).toAnsi() );
                 }
                 rethrow;
             }
