@@ -1,6 +1,6 @@
 {
     "name":"ColdBox Migrations Commands",
-    "version":"6.0.1",
+    "version":"6.0.2",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
