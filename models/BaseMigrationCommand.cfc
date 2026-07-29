@@ -42,13 +42,23 @@ component {
         }
         var settings = config[ arguments.manager ];
         if ( len( trim( settings.migrationsDirectory ) ) ) {
-            settings.migrationsDirectory = fileSystemUtil.makePathRelative(
-                fileSystemUtil.resolvePath( settings.migrationsDirectory )
+            settings.migrationsDirectory = replace(
+                fileSystemUtil.makePathRelative(
+                    fileSystemUtil.resolvePath( settings.migrationsDirectory )
+                ),
+                "\\",
+                "/",
+                "all"
             );
         }
         if ( settings.keyExists( "seedsDirectory" ) && len( trim( settings.seedsDirectory ) ) ) {
-            settings.seedsDirectory = fileSystemUtil.makePathRelative(
-                fileSystemUtil.resolvePath( settings.seedsDirectory )
+            settings.seedsDirectory = replace(
+                fileSystemUtil.makePathRelative(
+                    fileSystemUtil.resolvePath( settings.seedsDirectory )
+                ),
+                "\\",
+                "/",
+                "all"
             );
 
             if ( !directoryExists( expandPath( settings.seedsDirectory ) ) ) {
@@ -110,8 +120,13 @@ component {
      * resolved and made relative to the current working directory.
      */
     public void function setMigrationPath( required migrationsDirectory ) {
-        var relativePath = fileSystemUtil.makePathRelative(
-            fileSystemUtil.resolvePath( migrationsDirectory )
+        var relativePath = replace(
+            fileSystemUtil.makePathRelative(
+                fileSystemUtil.resolvePath( migrationsDirectory )
+            ),
+            "\\",
+            "/",
+            "all"
         );
         migrationService.setMigrationsDirectory( relativePath );
     }
