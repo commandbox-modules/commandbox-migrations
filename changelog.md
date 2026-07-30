@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.3] - 2026-07-30
+
+### Fixed
+
+- More Windows issues resolved by @garyknight
+
 ## [6.0.2] - 2026-07-29
 
 ### Fixed
