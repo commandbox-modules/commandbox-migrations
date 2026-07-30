@@ -1,6 +1,6 @@
 {
     "name":"ColdBox Migrations Commands",
-    "version":"6.0.2",
+    "version":"6.0.3",
     "location":"forgeboxStorage",
     "author":"Eric Peterson",
     "homepage":"https://github.com/commandbox-modules/commandbox-migrations",
@@ -52,5 +52,5 @@
         "boxlang_modules",
         "modules",
         "skills-lock.json"
-    ],
+    ]
 }
