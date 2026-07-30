@@ -46,7 +46,7 @@ component {
                 fileSystemUtil.makePathRelative(
                     fileSystemUtil.resolvePath( settings.migrationsDirectory )
                 ),
-                "\\",
+                "\",
                 "/",
                 "all"
             );
@@ -56,7 +56,7 @@ component {
                 fileSystemUtil.makePathRelative(
                     fileSystemUtil.resolvePath( settings.seedsDirectory )
                 ),
-                "\\",
+                "\",
                 "/",
                 "all"
             );
@@ -124,7 +124,7 @@ component {
             fileSystemUtil.makePathRelative(
                 fileSystemUtil.resolvePath( migrationsDirectory )
             ),
-            "\\",
+            "\",
             "/",
             "all"
         );
